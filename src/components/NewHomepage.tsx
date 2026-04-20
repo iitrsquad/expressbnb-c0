@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Search, ChevronRight, Sparkles, Shield, Zap, Award } from 'lucide-react';
+import { Search, ChevronRight, Sparkles, Shield, Zap, Award, MapPin, TrendingUp } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import ConversionPropertyCard from './ConversionPropertyCard';
 import SEOHead from './SEOHead';
@@ -8,20 +8,25 @@ import type { Property } from '../lib/database.types';
 
 const CITIES = ['Delhi', 'Gurgaon', 'Noida', 'Greater Noida', 'Rishikesh'];
 
+const CITY_META: Record<string, { emoji: string; tagline: string }> = {
+  Delhi: { emoji: '🏙️', tagline: 'Capital stays, unbeatable prices' },
+  Gurgaon: { emoji: '🏢', tagline: 'Modern living in Millennium City' },
+  Noida: { emoji: '🌆', tagline: 'Tech city verified stays' },
+  'Greater Noida': { emoji: '🏘️', tagline: 'Spacious homes, serene surroundings' },
+  Rishikesh: { emoji: '🏔️', tagline: 'Yoga capital, riverside retreats' },
+};
+
 export default function NewHomepage() {
   const [propertiesByCity, setPropertiesByCity] = useState<Record<string, Property[]>>({});
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('homes');
   const [scrollY, setScrollY] = useState(0);
+  const [menuOpen, setMenuOpen] = useState(false);
   const scrollRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   useEffect(() => {
     loadPropertiesByCity();
-
-    const handleScroll = () => {
-      setScrollY(window.scrollY);
-    };
-
+    const handleScroll = () => setScrollY(window.scrollY);
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -60,10 +65,11 @@ export default function NewHomepage() {
     window.dispatchEvent(new PopStateEvent('popstate'));
   };
 
-  const headerOpacity = Math.min(scrollY / 100, 1);
+  const headerScrolled = scrollY > 20;
+  const totalProperties = Object.values(propertiesByCity).reduce((acc, arr) => acc + arr.length, 0);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
+    <div className="min-h-screen bg-gray-50">
       <SEOHead
         config={{
           title: 'XpressBnB - Verified Stays in Delhi NCR | No Commission, Best Price Guaranteed',
@@ -74,125 +80,164 @@ export default function NewHomepage() {
         }}
       />
 
-      {/* Ultra-Premium Sticky Header */}
+      {/* Sticky Header */}
       <header
-        className="sticky top-0 z-50 transition-all duration-300"
-        style={{
-          background: `rgba(255, 255, 255, ${0.7 + headerOpacity * 0.3})`,
-          backdropFilter: 'blur(20px)',
-          borderBottom: `1px solid rgba(0, 0, 0, ${0.05 + headerOpacity * 0.05})`,
-        }}
+        className={`sticky top-0 z-50 transition-all duration-300 ${
+          headerScrolled
+            ? 'bg-white/95 backdrop-blur-xl shadow-sm border-b border-gray-100'
+            : 'bg-white'
+        }`}
       >
-        <div className="px-4 py-3">
-          {/* Logo & Menu */}
+        <div className="px-4 pt-3 pb-2">
+          {/* Logo row */}
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <div className="relative">
-                <img src="/logo.svg" alt="XpressBnB" className="h-9" />
-                <div className="absolute -inset-1 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full opacity-20 blur-md -z-10" />
-              </div>
+              <img src="/logo.svg" alt="XpressBnB" className="h-9" />
             </div>
-            <button className="relative p-2.5 rounded-full hover:bg-gray-100/80 active:scale-95 transition-all">
-              <div className="space-y-1.5">
-                <div className="w-5 h-0.5 bg-gray-900 rounded-full transition-all" />
-                <div className="w-5 h-0.5 bg-gray-900 rounded-full transition-all" />
-                <div className="w-5 h-0.5 bg-gray-900 rounded-full transition-all" />
-              </div>
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  window.history.pushState({}, '', '/host/login');
+                  window.dispatchEvent(new PopStateEvent('popstate'));
+                }}
+                className="text-sm font-semibold text-gray-700 px-4 py-2 rounded-full border border-gray-200 hover:border-gray-400 hover:bg-gray-50 transition-all"
+              >
+                Host login
+              </button>
+              <button
+                onClick={() => setMenuOpen(!menuOpen)}
+                className="p-2.5 rounded-full hover:bg-gray-100 active:scale-95 transition-all border border-gray-200"
+              >
+                <div className="space-y-1.5">
+                  <div className="w-5 h-0.5 bg-gray-800 rounded-full" />
+                  <div className="w-5 h-0.5 bg-gray-800 rounded-full" />
+                  <div className="w-5 h-0.5 bg-gray-800 rounded-full" />
+                </div>
+              </button>
+            </div>
           </div>
 
-          {/* Premium Search Bar */}
+          {/* Search bar */}
           <button
             onClick={handleSearchClick}
-            className="w-full group relative overflow-hidden"
+            className="w-full group"
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl" />
-            <div className="relative flex items-center gap-3 px-5 py-4 bg-white/80 backdrop-blur-xl rounded-2xl border border-gray-200/50 shadow-lg shadow-gray-200/50 group-hover:shadow-xl group-hover:shadow-pink-200/30 transition-all duration-300 group-active:scale-[0.98]">
-              <div className="p-2 bg-gradient-to-br from-pink-500 to-purple-600 rounded-xl">
+            <div className="flex items-center gap-3 px-4 py-3.5 bg-white rounded-2xl border border-gray-200 shadow-md hover:shadow-lg hover:border-gray-300 transition-all duration-200 group-active:scale-[0.99]">
+              <div className="p-1.5 bg-rose-500 rounded-xl">
                 <Search className="w-4 h-4 text-white" />
               </div>
               <div className="flex-1 text-left">
                 <div className="text-sm font-semibold text-gray-900">Where to?</div>
-                <div className="text-xs text-gray-500">Search destinations</div>
+                <div className="text-xs text-gray-400">Delhi NCR · Rishikesh · Any week</div>
+              </div>
+              <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                <Search className="w-3.5 h-3.5 text-gray-500" />
               </div>
             </div>
           </button>
         </div>
 
-        {/* Category Tabs with Gradient */}
-        <div className="relative px-4 pb-1 overflow-x-auto scrollbar-hide">
-          <div className="flex gap-6">
+        {/* Category Tabs */}
+        <div className="flex gap-1 px-4 pb-2 overflow-x-auto scrollbar-hide mt-1">
+          {['homes', 'experiences', 'services'].map(tab => (
             <button
-              onClick={() => setActiveTab('homes')}
-              className="relative pb-3 whitespace-nowrap font-bold transition-all group"
+              key={tab}
+              onClick={() => tab === 'homes' && setActiveTab(tab)}
+              disabled={tab !== 'homes'}
+              className={`relative pb-2.5 pt-1 px-1 whitespace-nowrap text-sm font-semibold capitalize transition-all ${
+                activeTab === tab
+                  ? 'text-gray-900'
+                  : 'text-gray-400 cursor-not-allowed'
+              } mr-5`}
             >
-              <span className={`transition-all ${
-                activeTab === 'homes'
-                  ? 'text-transparent bg-clip-text bg-gradient-to-r from-pink-600 to-purple-600'
-                  : 'text-gray-500 group-hover:text-gray-900'
-              }`}>
-                Homes
-              </span>
-              {activeTab === 'homes' && (
-                <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full shadow-lg shadow-pink-300/50" />
+              {tab}
+              {tab !== 'homes' && (
+                <span className="ml-1.5 text-[10px] bg-gray-100 text-gray-400 px-2 py-0.5 rounded-full font-medium">Soon</span>
+              )}
+              {activeTab === tab && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-900 rounded-full" />
               )}
             </button>
-            <button disabled className="relative pb-3 whitespace-nowrap font-bold text-gray-300 cursor-not-allowed">
-              Experiences
-              <span className="ml-2 text-xs bg-gradient-to-r from-gray-100 to-gray-200 px-2.5 py-1 rounded-full">Soon</span>
-            </button>
-            <button disabled className="relative pb-3 whitespace-nowrap font-bold text-gray-300 cursor-not-allowed">
-              Services
-              <span className="ml-2 text-xs bg-gradient-to-r from-gray-100 to-gray-200 px-2.5 py-1 rounded-full">Soon</span>
-            </button>
-          </div>
+          ))}
         </div>
       </header>
 
-      {/* Premium Trust Badges */}
-      <div className="relative py-6 px-4 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-pink-500/5 via-purple-500/5 to-pink-500/5" />
-        <div className="relative flex items-center justify-center gap-3 overflow-x-auto scrollbar-hide">
-          <div className="flex items-center gap-2.5 px-4 py-3 bg-white rounded-2xl shadow-lg shadow-amber-100/50 border border-amber-100 whitespace-nowrap group hover:shadow-xl hover:shadow-amber-200/50 transition-all duration-300">
-            <div className="p-2 bg-gradient-to-br from-amber-400 to-amber-500 rounded-xl">
-              <Sparkles className="w-4 h-4 text-white" />
-            </div>
-            <span className="text-sm font-bold text-gray-900">100% Verified</span>
+      {/* Hero Stats Bar */}
+      <div className="bg-gradient-to-r from-rose-600 to-rose-500 px-4 py-3">
+        <div className="flex items-center justify-between max-w-7xl mx-auto">
+          <div className="flex items-center gap-2">
+            <TrendingUp className="w-4 h-4 text-rose-100" />
+            <span className="text-white text-sm font-medium">
+              {loading ? '...' : totalProperties}+ verified properties
+            </span>
           </div>
-          <div className="flex items-center gap-2.5 px-4 py-3 bg-white rounded-2xl shadow-lg shadow-green-100/50 border border-green-100 whitespace-nowrap group hover:shadow-xl hover:shadow-green-200/50 transition-all duration-300">
-            <div className="p-2 bg-gradient-to-br from-green-400 to-green-500 rounded-xl">
-              <Zap className="w-4 h-4 text-white" />
-            </div>
-            <span className="text-sm font-bold text-gray-900">No Commission</span>
-          </div>
-          <div className="flex items-center gap-2.5 px-4 py-3 bg-white rounded-2xl shadow-lg shadow-blue-100/50 border border-blue-100 whitespace-nowrap group hover:shadow-xl hover:shadow-blue-200/50 transition-all duration-300">
-            <div className="p-2 bg-gradient-to-br from-blue-400 to-blue-500 rounded-xl">
-              <Award className="w-4 h-4 text-white" />
-            </div>
-            <span className="text-sm font-bold text-gray-900">Best Price</span>
+          <div className="flex items-center gap-1.5">
+            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+            <span className="text-rose-100 text-xs font-medium">Live availability</span>
           </div>
         </div>
       </div>
 
-      {/* City-Wise Sections */}
-      <div className="max-w-7xl mx-auto pb-20">
+      {/* Trust Badges */}
+      <div className="bg-white border-b border-gray-100 px-4 py-4">
+        <div className="flex items-center gap-3 overflow-x-auto scrollbar-hide">
+          {[
+            { icon: Sparkles, label: '100% Verified', sub: 'Every property checked', color: 'text-amber-500', bg: 'bg-amber-50', border: 'border-amber-100' },
+            { icon: Zap, label: 'No Commission', sub: 'Zero platform fees', color: 'text-green-600', bg: 'bg-green-50', border: 'border-green-100' },
+            { icon: Shield, label: 'Pay at Property', sub: 'No advance payment', color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-100' },
+            { icon: Award, label: 'Best Price', sub: 'Guaranteed lowest', color: 'text-rose-600', bg: 'bg-rose-50', border: 'border-rose-100' },
+          ].map(({ icon: Icon, label, sub, color, bg, border }) => (
+            <div
+              key={label}
+              className={`flex-shrink-0 flex items-center gap-3 px-4 py-3 rounded-2xl border ${bg} ${border}`}
+            >
+              <div className={`${color}`}>
+                <Icon className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="text-xs font-bold text-gray-900 whitespace-nowrap">{label}</div>
+                <div className="text-[10px] text-gray-500 whitespace-nowrap">{sub}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* City Quick Jump */}
+      <div className="bg-white px-4 py-4 border-b border-gray-100">
+        <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+          {CITIES.map(city => (
+            <button
+              key={city}
+              onClick={() => handleCityClick(city)}
+              className="flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full bg-gray-50 border border-gray-200 hover:bg-rose-50 hover:border-rose-200 hover:text-rose-700 text-gray-700 text-sm font-medium transition-all"
+            >
+              <MapPin className="w-3.5 h-3.5" />
+              {city}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Main content */}
+      <div className="max-w-7xl mx-auto pb-24">
         {loading ? (
-          <div className="space-y-10 px-4">
-            {[1, 2, 3].map((i) => (
+          <div className="space-y-10 px-4 pt-8">
+            {[1, 2, 3].map(i => (
               <div key={i} className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <div className="h-8 w-40 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded-xl animate-pulse" />
-                  <div className="h-6 w-20 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded-xl animate-pulse" />
+                  <div className="h-7 w-44 bg-gray-200 rounded-xl animate-pulse" />
+                  <div className="h-8 w-24 bg-gray-200 rounded-full animate-pulse" />
                 </div>
                 <div className="flex gap-4 overflow-hidden">
-                  {[1, 2, 3].map((j) => (
-                    <div key={j} className="flex-shrink-0 w-80">
-                      <div className="bg-white rounded-3xl overflow-hidden shadow-lg border border-gray-100">
-                        <div className="h-64 bg-gradient-to-br from-gray-200 via-gray-100 to-gray-200 animate-pulse" />
+                  {[1, 2, 3].map(j => (
+                    <div key={j} className="flex-shrink-0 w-72">
+                      <div className="bg-white rounded-3xl overflow-hidden shadow border border-gray-100">
+                        <div className="h-52 bg-gray-200 animate-pulse" />
                         <div className="p-4 space-y-3">
-                          <div className="h-5 w-3/4 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded-lg animate-pulse" />
-                          <div className="h-4 w-1/2 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded-lg animate-pulse" />
-                          <div className="h-6 w-1/3 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded-lg animate-pulse" />
+                          <div className="h-4 w-3/4 bg-gray-200 rounded animate-pulse" />
+                          <div className="h-3 w-1/2 bg-gray-200 rounded animate-pulse" />
+                          <div className="h-5 w-1/3 bg-gray-200 rounded animate-pulse" />
                         </div>
                       </div>
                     </div>
@@ -202,148 +247,187 @@ export default function NewHomepage() {
             ))}
           </div>
         ) : (
-          <div className="space-y-10">
+          <div className="space-y-10 pt-8">
             {CITIES.map((city, index) => {
               const properties = propertiesByCity[city] || [];
               if (properties.length === 0) return null;
+              const meta = CITY_META[city];
 
               return (
-                <section key={city} className="space-y-4" style={{ animationDelay: `${index * 100}ms` }}>
-                  {/* Premium Section Header */}
-                  <div className="flex items-center justify-between px-4">
+                <section
+                  key={city}
+                  className="space-y-4"
+                  style={{ animationDelay: `${index * 80}ms`, animation: 'fadeInUp 0.5s ease-out both' }}
+                >
+                  {/* Section header */}
+                  <div className="flex items-end justify-between px-4">
                     <div>
-                      <h2 className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
-                        Homes in {city}
-                      </h2>
-                      <p className="text-sm text-gray-500 mt-0.5">{properties.length} properties available</p>
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <span className="text-xl">{meta?.emoji}</span>
+                        <h2 className="text-xl font-bold text-gray-900">
+                          Stays in {city}
+                        </h2>
+                      </div>
+                      <p className="text-sm text-gray-500 ml-8">
+                        {meta?.tagline} · <span className="font-medium text-gray-700">{properties.length} available</span>
+                      </p>
                     </div>
                     <button
                       onClick={() => handleCityClick(city)}
-                      className="group flex items-center gap-1.5 px-4 py-2.5 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-full font-semibold shadow-lg shadow-pink-200/50 hover:shadow-xl hover:shadow-pink-300/50 hover:gap-2.5 transition-all duration-300 active:scale-95"
+                      className="flex items-center gap-1 text-sm font-semibold text-rose-600 hover:text-rose-700 group transition-colors"
                     >
-                      <span className="text-sm">Explore</span>
-                      <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                      See all
+                      <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                     </button>
                   </div>
 
-                  {/* Premium Horizontal Scroll */}
+                  {/* Horizontal scroll row */}
                   <div
-                    ref={(el) => scrollRefs.current[city] = el}
-                    className="overflow-x-auto scrollbar-hide scroll-smooth"
+                    ref={el => { scrollRefs.current[city] = el; }}
+                    className="overflow-x-auto scrollbar-hide"
                     style={{ scrollSnapType: 'x mandatory' }}
                   >
-                    <div className="flex gap-5 px-4 pb-3">
+                    <div className="flex gap-4 px-4 pb-2">
                       {properties.slice(0, 10).map((property, idx) => (
                         <div
                           key={property.id}
-                          className="flex-shrink-0 w-80"
-                          style={{
-                            scrollSnapAlign: 'start',
-                            animation: 'fadeInUp 0.6s ease-out',
-                            animationDelay: `${idx * 50}ms`,
-                            animationFillMode: 'both'
-                          }}
+                          className="flex-shrink-0 w-72"
+                          style={{ scrollSnapAlign: 'start', animationDelay: `${idx * 40}ms` }}
                         >
                           <ConversionPropertyCard property={property} />
                         </div>
                       ))}
+
+                      {/* View all card */}
+                      {properties.length > 5 && (
+                        <div className="flex-shrink-0 w-52 flex items-center justify-center" style={{ scrollSnapAlign: 'start' }}>
+                          <button
+                            onClick={() => handleCityClick(city)}
+                            className="flex flex-col items-center gap-3 p-6 rounded-3xl border-2 border-dashed border-gray-200 hover:border-rose-300 hover:bg-rose-50 transition-all group w-full h-full min-h-[200px] justify-center"
+                          >
+                            <div className="w-12 h-12 bg-rose-100 rounded-full flex items-center justify-center group-hover:bg-rose-200 transition-colors">
+                              <ChevronRight className="w-6 h-6 text-rose-600" />
+                            </div>
+                            <div className="text-center">
+                              <div className="font-bold text-gray-900 text-sm">See all</div>
+                              <div className="text-xs text-gray-500">{properties.length} in {city}</div>
+                            </div>
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </section>
               );
             })}
+
+            {/* Why XpressBnB */}
+            <section className="mx-4 mt-4 rounded-3xl overflow-hidden">
+              <div className="bg-gray-900 px-6 pt-10 pb-8">
+                <div className="text-center mb-8">
+                  <span className="inline-block px-3 py-1 bg-rose-500/20 text-rose-300 text-xs font-bold rounded-full mb-3 uppercase tracking-wider">
+                    Why Choose Us
+                  </span>
+                  <h2 className="text-2xl font-bold text-white mb-2">
+                    India's smartest way to book stays
+                  </h2>
+                  <p className="text-gray-400 text-sm">No middlemen. No hidden fees. Just great stays.</p>
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                  {[
+                    {
+                      icon: Sparkles,
+                      title: '100% Verified',
+                      desc: 'Every property personally checked by our team before listing.',
+                      accent: 'text-amber-400',
+                      bg: 'bg-amber-400/10',
+                    },
+                    {
+                      icon: Zap,
+                      title: 'Zero Commission',
+                      desc: 'Book directly with the host. What you see is what you pay.',
+                      accent: 'text-green-400',
+                      bg: 'bg-green-400/10',
+                    },
+                    {
+                      icon: Shield,
+                      title: 'Pay at Property',
+                      desc: 'No advance payment stress. Pay when you arrive, leave happy.',
+                      accent: 'text-blue-400',
+                      bg: 'bg-blue-400/10',
+                    },
+                  ].map(({ icon: Icon, title, desc, accent, bg }) => (
+                    <div key={title} className="flex gap-4 p-5 bg-white/5 rounded-2xl border border-white/10 hover:bg-white/10 transition-colors">
+                      <div className={`flex-shrink-0 w-10 h-10 ${bg} rounded-xl flex items-center justify-center`}>
+                        <Icon className={`w-5 h-5 ${accent}`} />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-white text-sm mb-1">{title}</h3>
+                        <p className="text-gray-400 text-xs leading-relaxed">{desc}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            {/* City Explore Grid */}
+            <section className="px-4 mt-4">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Explore destinations</h2>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {CITIES.map(city => {
+                  const count = propertiesByCity[city]?.length || 0;
+                  if (count === 0) return null;
+                  const meta = CITY_META[city];
+                  return (
+                    <button
+                      key={city}
+                      onClick={() => handleCityClick(city)}
+                      className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-4 text-left hover:border-rose-200 hover:shadow-md transition-all"
+                    >
+                      <div className="text-2xl mb-2">{meta?.emoji}</div>
+                      <div className="font-bold text-gray-900 text-sm">{city}</div>
+                      <div className="text-xs text-gray-500 mt-0.5">{count} properties</div>
+                      <ChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300 group-hover:text-rose-500 group-hover:translate-x-0.5 transition-all" />
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
           </div>
         )}
-
-        {/* Recently Viewed Section */}
-        <section className="mt-12 px-4">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Recently viewed</h2>
-          <p className="text-gray-500">Your recently viewed properties will appear here</p>
-        </section>
-
-        {/* Premium Why XpressBnB */}
-        <section className="mt-16 px-4 py-12 mx-4 relative overflow-hidden rounded-3xl">
-          <div className="absolute inset-0 bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50" />
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLW9wYWNpdHk9IjAuMDMiIHN0cm9rZS13aWR0aD0iMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmlkKSIvPjwvc3ZnPg==')] opacity-40" />
-
-          <div className="relative">
-            <div className="text-center mb-10">
-              <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-900 via-pink-600 to-purple-600 bg-clip-text text-transparent mb-3">
-                Why XpressBnB?
-              </h2>
-              <p className="text-gray-600 text-sm font-medium">India's smartest way to book stays</p>
-            </div>
-
-            <div className="grid md:grid-cols-3 gap-6">
-              <div className="group text-center bg-white/80 backdrop-blur-xl rounded-2xl p-6 border border-white shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-105 hover:-translate-y-1">
-                <div className="relative inline-block mb-5">
-                  <div className="w-20 h-20 bg-gradient-to-br from-amber-400 to-amber-600 rounded-2xl flex items-center justify-center shadow-xl shadow-amber-300/50 rotate-3 group-hover:rotate-6 transition-transform duration-500">
-                    <Sparkles className="w-10 h-10 text-white" />
-                  </div>
-                  <div className="absolute -inset-2 bg-gradient-to-r from-amber-400 to-amber-600 rounded-2xl opacity-20 blur-xl group-hover:opacity-40 transition-opacity" />
-                </div>
-                <h3 className="font-bold text-xl mb-3 text-gray-900">100% Verified</h3>
-                <p className="text-gray-600 text-sm leading-relaxed">Every property is personally verified by our team for your safety</p>
-              </div>
-
-              <div className="group text-center bg-white/80 backdrop-blur-xl rounded-2xl p-6 border border-white shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-105 hover:-translate-y-1">
-                <div className="relative inline-block mb-5">
-                  <div className="w-20 h-20 bg-gradient-to-br from-green-400 to-green-600 rounded-2xl flex items-center justify-center shadow-xl shadow-green-300/50 -rotate-3 group-hover:-rotate-6 transition-transform duration-500">
-                    <Zap className="w-10 h-10 text-white" />
-                  </div>
-                  <div className="absolute -inset-2 bg-gradient-to-r from-green-400 to-green-600 rounded-2xl opacity-20 blur-xl group-hover:opacity-40 transition-opacity" />
-                </div>
-                <h3 className="font-bold text-xl mb-3 text-gray-900">No Commission</h3>
-                <p className="text-gray-600 text-sm leading-relaxed">Direct booking with hosts. Zero platform fees, maximum savings</p>
-              </div>
-
-              <div className="group text-center bg-white/80 backdrop-blur-xl rounded-2xl p-6 border border-white shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-105 hover:-translate-y-1">
-                <div className="relative inline-block mb-5">
-                  <div className="w-20 h-20 bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl flex items-center justify-center shadow-xl shadow-blue-300/50 rotate-3 group-hover:rotate-6 transition-transform duration-500">
-                    <Shield className="w-10 h-10 text-white" />
-                  </div>
-                  <div className="absolute -inset-2 bg-gradient-to-r from-blue-400 to-blue-600 rounded-2xl opacity-20 blur-xl group-hover:opacity-40 transition-opacity" />
-                </div>
-                <h3 className="font-bold text-xl mb-3 text-gray-900">Pay at Property</h3>
-                <p className="text-gray-600 text-sm leading-relaxed">Flexible payment options. Pay when you check-in, stay stress-free</p>
-              </div>
-            </div>
-          </div>
-        </section>
       </div>
 
-      {/* Premium Footer */}
-      <footer className="relative mt-16 py-12 px-4 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-gray-50 to-white" />
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLW9wYWNpdHk9IjAuMDIiIHN0cm9rZS13aWR0aD0iMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmlkKSIvPjwvc3ZnPg==')] opacity-30" />
-
-        <div className="relative max-w-7xl mx-auto">
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center gap-2 mb-4">
-              <img src="/logo.svg" alt="XpressBnB" className="h-8" />
-            </div>
-            <p className="text-gray-600 text-sm font-medium max-w-md mx-auto">
+      {/* Footer */}
+      <footer className="bg-white border-t border-gray-100 pt-10 pb-8 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col items-center text-center mb-8">
+            <img src="/logo.svg" alt="XpressBnB" className="h-10 mb-3" />
+            <p className="text-gray-500 text-sm max-w-xs leading-relaxed">
               India's first zero-commission property booking platform. Direct. Simple. Smart.
             </p>
           </div>
 
-          <div className="flex flex-wrap justify-center gap-3 mb-8">
-            <span className="px-4 py-2 bg-white rounded-full text-xs font-semibold text-gray-700 shadow-sm border border-gray-200">
-              100% Verified
-            </span>
-            <span className="px-4 py-2 bg-white rounded-full text-xs font-semibold text-gray-700 shadow-sm border border-gray-200">
-              No Commission
-            </span>
-            <span className="px-4 py-2 bg-white rounded-full text-xs font-semibold text-gray-700 shadow-sm border border-gray-200">
-              Pay at Property
-            </span>
+          <div className="flex flex-wrap justify-center gap-2 mb-8">
+            {['100% Verified', 'No Commission', 'Pay at Property', 'Couple Friendly', 'Instant Booking'].map(tag => (
+              <span key={tag} className="px-3 py-1.5 bg-gray-50 rounded-full text-xs font-semibold text-gray-600 border border-gray-200">
+                {tag}
+              </span>
+            ))}
           </div>
 
-          <div className="text-center">
-            <p className="text-gray-500 text-xs mb-2">© 2025 XpressBnB. All rights reserved.</p>
-            <p className="text-transparent bg-clip-text bg-gradient-to-r from-pink-600 to-purple-600 text-sm font-bold">
-              India's Smarter Stay
-            </p>
+          <div className="flex flex-wrap justify-center gap-6 mb-6 text-sm text-gray-500">
+            <button className="hover:text-gray-900 transition-colors">About</button>
+            <button className="hover:text-gray-900 transition-colors">List your property</button>
+            <button className="hover:text-gray-900 transition-colors">Privacy</button>
+            <button className="hover:text-gray-900 transition-colors">Terms</button>
+            <button className="hover:text-gray-900 transition-colors">Contact</button>
+          </div>
+
+          <div className="text-center border-t border-gray-100 pt-6">
+            <p className="text-gray-400 text-xs mb-1">© 2025 XpressBnB. All rights reserved.</p>
+            <p className="text-rose-500 text-sm font-bold">India's Smarter Stay</p>
           </div>
         </div>
       </footer>
