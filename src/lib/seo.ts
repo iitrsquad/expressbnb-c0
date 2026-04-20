@@ -129,7 +129,7 @@ export function generateOrganizationStructuredData() {
     '@type': 'Organization',
     name: 'XpressBnB',
     url: 'https://xpressbnb.com',
-    logo: 'https://xpressbnb.com/logo.svg',
+    logo: 'https://xpressbnb.com/90d3767f-65eb-431d-8005-c9f9bb5f2fde.png',
     description: 'Leading platform for couple-friendly hourly stays in Delhi NCR. Safe, verified, and private properties for flexible short-term bookings.',
     contactPoint: {
       '@type': 'ContactPoint',

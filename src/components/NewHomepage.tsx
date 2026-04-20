@@ -92,7 +92,7 @@ export default function NewHomepage() {
           {/* Logo row */}
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <img src="/logo.svg" alt="XpressBnB" className="h-9" />
+              <img src="/90d3767f-65eb-431d-8005-c9f9bb5f2fde.png" alt="XpressBnB" className="h-9" />
             </div>
             <div className="flex items-center gap-2">
               <button
@@ -403,7 +403,7 @@ export default function NewHomepage() {
       <footer className="bg-white border-t border-gray-100 pt-10 pb-8 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col items-center text-center mb-8">
-            <img src="/logo.svg" alt="XpressBnB" className="h-10 mb-3" />
+            <img src="/90d3767f-65eb-431d-8005-c9f9bb5f2fde.png" alt="XpressBnB" className="h-10 mb-3" />
             <p className="text-gray-500 text-sm max-w-xs leading-relaxed">
               India's first zero-commission property booking platform. Direct. Simple. Smart.
             </p>
