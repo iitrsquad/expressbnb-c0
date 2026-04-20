@@ -203,6 +203,98 @@ export default function NewHomepage() {
         </div>
       </div>
 
+      {/* Featured City Hero Banner */}
+      <div className="px-4 py-5 bg-white">
+        <div
+          className="relative overflow-hidden rounded-3xl"
+          style={{ background: 'linear-gradient(135deg, #2450E8 0%, #1a3bbf 40%, #0B1638 100%)' }}
+        >
+          {/* Subtle grain texture overlay */}
+          <div
+            className="absolute inset-0 opacity-[0.04]"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+              backgroundSize: '200px 200px',
+            }}
+          />
+
+          {/* Radial glow accent top-right */}
+          <div
+            className="absolute -top-16 -right-16 w-64 h-64 rounded-full pointer-events-none"
+            style={{ background: 'radial-gradient(circle, rgba(99,149,255,0.25) 0%, transparent 70%)' }}
+          />
+          {/* Radial glow accent bottom-left */}
+          <div
+            className="absolute -bottom-20 -left-10 w-56 h-56 rounded-full pointer-events-none"
+            style={{ background: 'radial-gradient(circle, rgba(36,80,232,0.4) 0%, transparent 70%)' }}
+          />
+
+          <div className="relative px-6 py-7 sm:px-8 sm:py-9">
+            {/* City label */}
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-1.5 h-1.5 rounded-full bg-blue-300" />
+              <span
+                className="text-[10px] font-bold tracking-[0.18em] uppercase"
+                style={{ color: 'rgba(180,205,255,0.9)' }}
+              >
+                Featured City
+              </span>
+            </div>
+
+            {/* Headline */}
+            <p
+              className="text-xs font-semibold mb-1 tracking-wide"
+              style={{ color: 'rgba(160,190,255,0.75)' }}
+            >
+              Gurgaon
+            </p>
+            <h2 className="text-2xl sm:text-3xl font-bold text-white leading-tight mb-5" style={{ letterSpacing: '-0.01em' }}>
+              Modern living in<br />Millennium City
+            </h2>
+
+            {/* Pill badges */}
+            <div className="flex flex-wrap gap-2">
+              {[
+                { label: '28 properties' },
+                { label: 'No commission' },
+                { label: 'Pay at property' },
+              ].map(({ label }) => (
+                <span
+                  key={label}
+                  className="px-3.5 py-1.5 text-xs font-semibold text-white rounded-full"
+                  style={{
+                    background: 'rgba(255,255,255,0.1)',
+                    border: '1px solid rgba(255,255,255,0.18)',
+                    backdropFilter: 'blur(8px)',
+                    WebkitBackdropFilter: 'blur(8px)',
+                  }}
+                >
+                  {label}
+                </span>
+              ))}
+            </div>
+
+            {/* CTA */}
+            <button
+              onClick={() => handleCityClick('Gurgaon')}
+              className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold transition-all active:scale-95"
+              style={{
+                background: 'rgba(255,255,255,0.14)',
+                border: '1px solid rgba(255,255,255,0.28)',
+                color: '#fff',
+              }}
+              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.22)')}
+              onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.14)')}
+            >
+              Explore Gurgaon
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M2.5 7h9M7.5 3l4 4-4 4" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* City Quick Jump */}
       <div className="bg-white px-4 py-4 border-b border-gray-100">
         <div className="flex gap-2 overflow-x-auto scrollbar-hide">
