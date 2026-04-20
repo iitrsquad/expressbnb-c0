@@ -2,13 +2,40 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Keyframes (must live at top level, not inside @layer) ── */
+
+@keyframes pulse-scale {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%       { transform: scale(1.05); opacity: 0.95; }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-10px); }
+}
+
+@keyframes glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(236, 72, 153, 0.3); }
+  50%       { box-shadow: 0 0 40px rgba(236, 72, 153, 0.6); }
+}
+
+/* ── Base ── */
+
 @layer base {
-  /* Safe area inset support for mobile devices */
   html {
     padding-bottom: env(safe-area-inset-bottom);
   }
 
-  /* Add bottom padding on mobile to prevent content from being hidden */
   @media (max-width: 768px) {
     body {
       padding-bottom: calc(70px + env(safe-area-inset-bottom));
@@ -16,58 +43,11 @@
   }
 }
 
-@layer utilities {
-  @keyframes pulse-scale {
-    0%, 100% {
-      transform: scale(1);
-      opacity: 1;
-    }
-    50% {
-      transform: scale(1.05);
-      opacity: 0.95;
-    }
-  }
+/* ── Utilities ── */
 
+@layer utilities {
   .animate-pulse-scale {
     animation: pulse-scale 2s ease-in-out infinite;
-  }
-
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(30px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  @keyframes shimmer {
-    0% {
-      background-position: -1000px 0;
-    }
-    100% {
-      background-position: 1000px 0;
-    }
-  }
-
-  @keyframes float {
-    0%, 100% {
-      transform: translateY(0px);
-    }
-    50% {
-      transform: translateY(-10px);
-    }
-  }
-
-  @keyframes glow {
-    0%, 100% {
-      box-shadow: 0 0 20px rgba(236, 72, 153, 0.3);
-    }
-    50% {
-      box-shadow: 0 0 40px rgba(236, 72, 153, 0.6);
-    }
   }
 
   .animate-shimmer {
@@ -89,35 +69,31 @@
     animation: glow 2s ease-in-out infinite;
   }
 
-  /* Safe area inset utility */
   .safe-area-inset-bottom {
     padding-bottom: env(safe-area-inset-bottom);
   }
 
-  /* Hide scrollbar but keep functionality */
+  /* Hide scrollbar while keeping scroll functionality */
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
   }
 
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
 
-  /* Smooth scroll for horizontal carousels */
-  .scrollbar-hide {
-    scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  /* Parallax optimizations */
+  /* Parallax performance helpers */
   .parallax-container {
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-y: none;
     scroll-behavior: smooth;
   }
 
-  .parallax-hero {
+  .parallax-hero,
+  .parallax-properties {
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
     perspective: 1000px;
@@ -125,34 +101,6 @@
   }
 
   .parallax-properties {
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
-    perspective: 1000px;
-    -webkit-perspective: 1000px;
     touch-action: pan-y;
-  }
-
-  /* Mobile parallax optimizations */
-  @media (max-width: 768px) {
-    .parallax-container {
-      -webkit-overflow-scrolling: touch;
-      overscroll-behavior-y: none;
-      scroll-behavior: smooth;
-    }
-
-    .parallax-hero {
-      backface-visibility: hidden;
-      -webkit-backface-visibility: hidden;
-      perspective: 1000px;
-      -webkit-perspective: 1000px;
-    }
-
-    .parallax-properties {
-      backface-visibility: hidden;
-      -webkit-backface-visibility: hidden;
-      perspective: 1000px;
-      -webkit-perspective: 1000px;
-      touch-action: pan-y;
-    }
   }
 }
