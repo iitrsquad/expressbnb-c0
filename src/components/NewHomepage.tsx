@@ -439,8 +439,8 @@ export default function NewHomepage() {
               );
             })}
 
-            {/* Why XpressBnB */}
-            <section className="mx-4 mt-4 rounded-3xl overflow-hidden">
+            {/* Why XpressBnB — desktop only */}
+            <section className="hidden md:block mx-4 mt-4 rounded-3xl overflow-hidden">
               <div className="bg-gray-900 px-6 pt-10 pb-8">
                 <div className="text-center mb-8">
                   <span className="inline-block px-3 py-1 bg-rose-500/20 text-rose-300 text-xs font-bold rounded-full mb-3 uppercase tracking-wider">
@@ -452,7 +452,7 @@ export default function NewHomepage() {
                   <p className="text-gray-400 text-sm">No middlemen. No hidden fees. Just great stays.</p>
                 </div>
 
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <div className="grid grid-cols-3 gap-4">
                   {[
                     {
                       icon: Sparkles,
@@ -532,7 +532,7 @@ export default function NewHomepage() {
             </p>
           </div>
 
-          <div className="flex flex-wrap justify-center gap-2 mb-8">
+          <div className="hidden md:flex flex-wrap justify-center gap-2 mb-8">
             {['100% Verified', 'No Commission', 'Pay at Property', 'Couple Friendly', 'Instant Booking'].map(tag => (
               <span key={tag} className="px-3 py-1.5 bg-gray-50 rounded-full text-xs font-semibold text-gray-600 border border-gray-200">
                 {tag}
