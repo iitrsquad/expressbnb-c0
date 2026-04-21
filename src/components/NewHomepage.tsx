@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Search, ChevronRight, Sparkles, Shield, Zap } from 'lucide-react';
+import { Search, ChevronRight, Sparkles, Shield, Zap, SlidersHorizontal } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import ConversionPropertyCard from './ConversionPropertyCard';
 import SEOHead from './SEOHead';
@@ -132,10 +132,9 @@ export default function NewHomepage() {
 
       {/* Hero Section */}
       <section
-        className="relative w-full flex flex-col items-center justify-end overflow-hidden"
+        className="relative w-full flex flex-col items-center justify-center overflow-hidden"
         style={{
-          minHeight: '420px',
-          height: 'clamp(420px, 75vw, 92vh)',
+          height: 'clamp(260px, 42vw, 360px)',
         }}
       >
         {/* Background image */}
@@ -151,78 +150,68 @@ export default function NewHomepage() {
           className="absolute inset-0"
           style={{
             background:
-              'linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.55) 60%, rgba(0,0,0,0.72) 100%)',
+              'linear-gradient(to bottom, rgba(0,0,0,0.28) 0%, rgba(0,0,0,0.42) 60%, rgba(0,0,0,0.55) 100%)',
           }}
         />
 
         {/* Content */}
-        <div className="relative z-10 w-full flex flex-col items-center px-4 pb-10 md:pb-16">
+        <div className="relative z-10 w-full max-w-3xl flex flex-col items-center px-4">
           <h1
             className="text-center text-white font-extrabold"
             style={{
-              fontSize: 'clamp(36px, 6vw, 64px)',
-              letterSpacing: 'clamp(-1.5px, -0.1vw, -0.5px)',
-              textShadow: '0 2px 20px rgba(0,0,0,0.3)',
-              lineHeight: 1.05,
+              fontSize: 'clamp(26px, 5vw, 44px)',
+              letterSpacing: '-0.5px',
+              textShadow: '0 2px 16px rgba(0,0,0,0.35)',
+              lineHeight: 1.1,
             }}
           >
             India's Smarter Stay
           </h1>
           <p
-            className="text-center mt-3"
+            className="text-center mt-2"
             style={{
-              fontSize: 'clamp(15px, 1.4vw, 20px)',
-              color: 'rgba(255,255,255,0.88)',
+              fontSize: 'clamp(13px, 1.3vw, 16px)',
+              color: 'rgba(255,255,255,0.92)',
               fontWeight: 400,
+              textShadow: '0 1px 8px rgba(0,0,0,0.3)',
             }}
           >
-            Verified stays · Zero commission · Better prices
+            Verified stays, zero commission, better prices
           </p>
 
           {/* Search bar */}
-          <button
-            onClick={scrollToListings}
-            className="mt-5 md:mt-8 flex items-center bg-white overflow-hidden transition-transform active:scale-[0.99]"
+          <div
+            className="mt-5 md:mt-6 flex items-center bg-white"
             style={{
-              width: 'min(580px, calc(100% - 32px))',
-              height: 'clamp(54px, 7vw, 64px)',
-              borderRadius: '60px',
-              boxShadow: '0 4px 24px rgba(0,0,0,0.22)',
+              width: 'min(520px, calc(100% - 8px))',
+              height: '52px',
+              borderRadius: '40px',
+              boxShadow: '0 6px 24px rgba(0,0,0,0.22)',
+              padding: '6px 6px 6px 20px',
             }}
           >
-            <div className="flex-1 flex flex-col items-start px-6 text-left">
-              <span className="font-bold text-gray-900" style={{ fontSize: '15px' }}>
-                Where to?
-              </span>
-              <span className="text-gray-400" style={{ fontSize: '13px' }}>
-                Delhi NCR · Any stay
-              </span>
-            </div>
-            <div className="w-12 h-12 mr-2 rounded-full bg-[#ff385c] flex items-center justify-center flex-shrink-0">
-              <Search className="w-5 h-5 text-white" />
-            </div>
-          </button>
-
-          {/* Trust pills */}
-          <div className="flex gap-3 justify-center flex-wrap mt-5 px-2">
-            {['✓ 100% Verified', '₹ No Commission', '🔒 Pay at Property'].map(label => (
-              <span
-                key={label}
-                className="text-white whitespace-nowrap"
-                style={{
-                  background: 'rgba(255,255,255,0.18)',
-                  border: '1px solid rgba(255,255,255,0.35)',
-                  backdropFilter: 'blur(8px)',
-                  WebkitBackdropFilter: 'blur(8px)',
-                  fontSize: '13px',
-                  fontWeight: 600,
-                  padding: '8px 18px',
-                  borderRadius: '30px',
-                }}
-              >
-                {label}
-              </span>
-            ))}
+            <input
+              type="text"
+              placeholder="Luxury Search Here."
+              onClick={scrollToListings}
+              onFocus={scrollToListings}
+              className="flex-1 bg-transparent outline-none text-gray-900 placeholder:text-gray-400"
+              style={{ fontSize: '14px', fontWeight: 500 }}
+            />
+            <button
+              onClick={scrollToListings}
+              aria-label="Filters"
+              className="w-9 h-9 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors flex-shrink-0"
+            >
+              <SlidersHorizontal className="w-4 h-4" />
+            </button>
+            <button
+              onClick={scrollToListings}
+              aria-label="Search"
+              className="w-10 h-10 ml-1 rounded-xl bg-[#ff385c] hover:bg-[#e8314f] flex items-center justify-center flex-shrink-0 transition-colors"
+            >
+              <Search className="w-4 h-4 text-white" />
+            </button>
           </div>
         </div>
       </section>
