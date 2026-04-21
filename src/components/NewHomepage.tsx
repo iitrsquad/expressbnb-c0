@@ -117,7 +117,10 @@ export default function NewHomepage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div
+      className="min-h-screen bg-gray-50"
+      style={{ WebkitOverflowScrolling: 'touch', overscrollBehaviorY: 'contain' } as React.CSSProperties}
+    >
       <SEOHead
         config={{
           title: 'XpressBnB - Verified Stays in Delhi NCR | No Commission, Best Price Guaranteed',
@@ -178,17 +181,30 @@ export default function NewHomepage() {
           to   { opacity: 1; transform: translateY(0); }
         }
       `}</style>
-      <div className="relative w-full overflow-hidden" style={{ height: 'clamp(260px, 42vw, 360px)' }}>
+
+      {/* Hero container: 62vw on mobile (min 340px), desktop keeps clamp */}
+      <div
+        className="relative w-full overflow-hidden"
+        style={{ height: 'clamp(340px, 62vw, 420px)' }}
+      >
+        {/* On desktop override to taller range via a separate style — desktop class keeps old feel */}
+        <style>{`
+          @media (min-width: 768px) {
+            .hero-container { height: clamp(260px, 42vw, 360px) !important; }
+          }
+        `}</style>
+
         {/* Background images — stacked, crossfade */}
         {HERO_SLIDES.map((slide, i) => (
           <div
             key={i}
-            className="absolute inset-0 bg-cover bg-center"
+            className="absolute inset-0 bg-cover bg-center hero-container"
             style={{
               backgroundImage: `url(${slide.image})`,
               opacity: i === heroIndex ? 1 : 0,
               transition: 'opacity 1.2s ease-in-out',
               zIndex: 0,
+              height: '100%',
             }}
           />
         ))}
@@ -203,7 +219,7 @@ export default function NewHomepage() {
           }}
         />
 
-        {/* City label — bottom left, changes with slide */}
+        {/* City label — bottom left, desktop only */}
         <div className="absolute bottom-24 left-10 hidden md:block" style={{ zIndex: 2 }}>
           <p
             key={heroIndex}
@@ -221,10 +237,10 @@ export default function NewHomepage() {
           </p>
         </div>
 
-        {/* Dot indicators — bottom center */}
+        {/* Dot indicators */}
         <div
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2"
-          style={{ zIndex: 2 }}
+          className="absolute left-1/2 -translate-x-1/2 flex"
+          style={{ bottom: '12px', gap: '5px', zIndex: 2 }}
         >
           {HERO_SLIDES.map((_, i) => (
             <button
@@ -232,10 +248,10 @@ export default function NewHomepage() {
               onClick={() => setHeroIndex(i)}
               aria-label={`Go to slide ${i + 1}`}
               style={{
-                width: i === heroIndex ? 28 : 8,
-                height: 8,
+                width: i === heroIndex ? 20 : 6,
+                height: 6,
                 borderRadius: 9999,
-                background: i === heroIndex ? '#ff385c' : 'rgba(255,255,255,0.45)',
+                background: i === heroIndex ? '#ff385c' : 'rgba(255,255,255,0.4)',
                 border: 'none',
                 cursor: 'pointer',
                 padding: 0,
@@ -247,25 +263,30 @@ export default function NewHomepage() {
 
         {/* Main hero content — centered */}
         <div
-          className="relative flex flex-col items-center justify-end h-full pb-20 md:pb-24 px-4 text-center"
+          className="relative flex flex-col items-center justify-end h-full pb-16 md:pb-24 px-4 text-center"
           style={{ zIndex: 2 }}
         >
+          {/* Headline: 28px mobile, clamp on desktop */}
           <h1
-            className="text-center text-white font-extrabold"
+            className="text-center text-white"
             style={{
-              fontSize: 'clamp(32px, 5.5vw, 56px)',
+              fontSize: 'clamp(28px, 5.5vw, 56px)',
+              fontWeight: 800,
               letterSpacing: '-0.5px',
               textShadow: '0 2px 20px rgba(0,0,0,0.4)',
-              lineHeight: 1.1,
+              lineHeight: 1.15,
             }}
           >
             India's Smarter Stay
           </h1>
+
+          {/* Subtext */}
           <p
-            className="text-center mt-3"
+            className="text-center"
             style={{
-              fontSize: 'clamp(14px, 1.4vw, 18px)',
-              color: 'rgba(255,255,255,0.92)',
+              marginTop: '6px',
+              fontSize: 'clamp(13px, 1.4vw, 18px)',
+              color: 'rgba(255,255,255,0.82)',
               fontWeight: 400,
               textShadow: '0 1px 8px rgba(0,0,0,0.35)',
             }}
@@ -273,9 +294,41 @@ export default function NewHomepage() {
             Verified stays, zero commission, better prices
           </p>
 
-          {/* Search bar */}
+          {/* Search bar — mobile: two-line label style; desktop: single input */}
+          {/* Mobile search bar */}
           <div
-            className="mt-6 md:mt-8 flex items-center bg-white"
+            className="md:hidden mt-5 flex items-center bg-white"
+            style={{
+              width: 'calc(100% - 32px)',
+              height: '52px',
+              borderRadius: '50px',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.25)',
+              padding: '0 8px 0 18px',
+            }}
+          >
+            <div
+              className="flex-1 flex flex-col justify-center cursor-pointer"
+              onClick={scrollToListings}
+            >
+              <span style={{ fontSize: '14px', fontWeight: 700, color: '#111', lineHeight: 1.2 }}>
+                Where to?
+              </span>
+              <span style={{ fontSize: '11px', color: '#aaa', lineHeight: 1.2 }}>
+                Delhi NCR · Any stay
+              </span>
+            </div>
+            <button
+              onClick={scrollToListings}
+              aria-label="Search"
+              className="w-10 h-10 mr-1 bg-[#ff385c] hover:bg-[#e8314f] rounded-full flex items-center justify-center flex-shrink-0 transition-colors"
+            >
+              <Search className="w-4 h-4 text-white" />
+            </button>
+          </div>
+
+          {/* Desktop search bar */}
+          <div
+            className="hidden md:flex mt-8 items-center bg-white"
             style={{
               width: 'min(560px, calc(100% - 8px))',
               height: '56px',
@@ -311,10 +364,10 @@ export default function NewHomepage() {
       </div>
 
       {/* City Quick Links */}
-      <div className="bg-white border-b border-gray-200 py-4">
+      <div className="bg-white border-b" style={{ borderBottomColor: '#f0f0f0', padding: '12px 16px' }}>
         <div
           className="flex overflow-x-auto scrollbar-hide"
-          style={{ gap: '10px', padding: '0 16px' }}
+          style={{ gap: '8px' }}
         >
           <div className="hidden md:block" style={{ width: '24px', flexShrink: 0 }} />
           {CITIES.map(city => {
@@ -323,11 +376,18 @@ export default function NewHomepage() {
               <button
                 key={city}
                 onClick={() => handleCityPillClick(city)}
-                className={`flex-shrink-0 px-5 py-2.5 rounded-full font-semibold text-sm border transition-all ${
-                  isActive
-                    ? 'bg-gray-900 text-white border-gray-900'
-                    : 'bg-white text-gray-700 border-gray-200 hover:border-gray-400'
-                }`}
+                className="flex-shrink-0 transition-all"
+                style={{
+                  padding: '8px 16px',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  borderRadius: '30px',
+                  border: `1px solid ${isActive ? '#111' : '#e0e0e0'}`,
+                  background: isActive ? '#111' : '#fff',
+                  color: isActive ? '#fff' : '#444',
+                  whiteSpace: 'nowrap',
+                  cursor: 'pointer',
+                }}
               >
                 {city}
               </button>
@@ -338,7 +398,7 @@ export default function NewHomepage() {
       </div>
 
       {/* Main content */}
-      <div id="listings" className="max-w-7xl mx-auto pb-24 scroll-mt-20">
+      <div id="listings" className="max-w-7xl mx-auto scroll-mt-20" style={{ paddingBottom: '120px' }}>
         {loading ? (
           <div className="space-y-10 px-4 pt-8">
             {[1, 2, 3].map(i => (
@@ -347,7 +407,21 @@ export default function NewHomepage() {
                   <div className="h-7 w-44 bg-gray-200 rounded-xl animate-pulse" />
                   <div className="h-8 w-24 bg-gray-200 rounded-full animate-pulse" />
                 </div>
-                <div className="flex gap-4 overflow-hidden">
+                {/* Mobile: 2-col grid skeleton */}
+                <div className="grid grid-cols-2 md:hidden gap-[10px] px-3">
+                  {[1, 2, 3, 4].map(j => (
+                    <div key={j} className="bg-white rounded-xl overflow-hidden shadow border border-gray-100">
+                      <div className="aspect-[4/3] bg-gray-200 animate-pulse" />
+                      <div className="p-3 space-y-2">
+                        <div className="h-3 w-3/4 bg-gray-200 rounded animate-pulse" />
+                        <div className="h-2.5 w-1/2 bg-gray-200 rounded animate-pulse" />
+                        <div className="h-4 w-1/3 bg-gray-200 rounded animate-pulse" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                {/* Desktop: horizontal scroll skeleton */}
+                <div className="hidden md:flex gap-4 overflow-hidden">
                   {[1, 2, 3].map(j => (
                     <div key={j} className="flex-shrink-0 w-72">
                       <div className="bg-white rounded-3xl overflow-hidden shadow border border-gray-100">
@@ -374,11 +448,30 @@ export default function NewHomepage() {
               return (
                 <section
                   key={city}
-                  className="space-y-4"
                   style={{ animationDelay: `${index * 80}ms`, animation: 'fadeInUp 0.5s ease-out both' }}
                 >
-                  {/* Section header */}
-                  <div className="flex items-end justify-between px-4">
+                  {/* Section header — mobile redesign, desktop kept */}
+                  {/* Mobile header */}
+                  <div className="flex items-start justify-between px-4 mb-3 mt-2 md:hidden">
+                    <div>
+                      <h2 className="text-[19px] font-extrabold text-gray-900 leading-tight">
+                        Stays in {city}
+                      </h2>
+                      <p className="text-[12px] text-gray-400 mt-0.5">
+                        {properties.length} properties available
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => handleCityClick(city)}
+                      className="flex items-center gap-0.5 text-[13px] font-bold text-[#ff385c] whitespace-nowrap mt-1 shrink-0"
+                    >
+                      See all
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+
+                  {/* Desktop header */}
+                  <div className="hidden md:flex items-end justify-between px-4 mb-4">
                     <div>
                       <div className="flex items-center gap-2 mb-0.5">
                         <span className="text-xl">{meta?.emoji}</span>
@@ -399,10 +492,30 @@ export default function NewHomepage() {
                     </button>
                   </div>
 
-                  {/* Horizontal scroll row */}
+                  {/* Mobile: 2-column grid */}
+                  <div
+                    className="md:hidden grid px-3"
+                    style={{
+                      gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+                      columnGap: '10px',
+                      rowGap: '16px',
+                    }}
+                  >
+                    {properties.slice(0, 6).map(property => (
+                      <div
+                        key={property.id}
+                        className="overflow-hidden rounded-xl"
+                        style={{ borderRadius: '12px' }}
+                      >
+                        <ConversionPropertyCard property={property} />
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Desktop: horizontal scroll row */}
                   <div
                     ref={el => { scrollRefs.current[city] = el; }}
-                    className="overflow-x-auto scrollbar-hide"
+                    className="hidden md:block overflow-x-auto scrollbar-hide"
                     style={{ scrollSnapType: 'x mandatory' }}
                   >
                     <div className="flex gap-4 px-4 pb-2">
@@ -439,20 +552,29 @@ export default function NewHomepage() {
               );
             })}
 
-            {/* Why XpressBnB — desktop only */}
-            <section className="hidden md:block mx-4 mt-4 rounded-3xl overflow-hidden">
-              <div className="bg-gray-900 px-6 pt-10 pb-8">
-                <div className="text-center mb-8">
+            {/* Why XpressBnB — visible on both, mobile-optimized layout */}
+            <section className="mx-4 mt-4 rounded-3xl overflow-hidden">
+              <div
+                className="bg-gray-900"
+                style={{ padding: 'clamp(32px, 5vw, 40px) clamp(20px, 4vw, 24px) clamp(32px, 5vw, 32px)' }}
+              >
+                <div className="text-center mb-6 md:mb-8">
                   <span className="inline-block px-3 py-1 bg-rose-500/20 text-rose-300 text-xs font-bold rounded-full mb-3 uppercase tracking-wider">
                     Why Choose Us
                   </span>
-                  <h2 className="text-2xl font-bold text-white mb-2">
+                  <h2
+                    className="font-bold text-white mb-2"
+                    style={{ fontSize: 'clamp(22px, 5vw, 28px)' }}
+                  >
                     India's smartest way to book stays
                   </h2>
-                  <p className="text-gray-400 text-sm">No middlemen. No hidden fees. Just great stays.</p>
+                  <p className="text-gray-400" style={{ fontSize: 'clamp(13px, 2vw, 14px)' }}>
+                    No middlemen. No hidden fees. Just great stays.
+                  </p>
                 </div>
 
-                <div className="grid grid-cols-3 gap-4">
+                {/* Mobile: stacked; Desktop: 3-col grid */}
+                <div className="flex flex-col gap-3 md:grid md:grid-cols-3 md:gap-4">
                   {[
                     {
                       icon: Sparkles,
@@ -476,13 +598,32 @@ export default function NewHomepage() {
                       bg: 'bg-blue-400/10',
                     },
                   ].map(({ icon: Icon, title, desc, accent, bg }) => (
-                    <div key={title} className="flex gap-4 p-5 bg-white/5 rounded-2xl border border-white/10 hover:bg-white/10 transition-colors">
+                    <div
+                      key={title}
+                      className="flex gap-4 hover:bg-white/10 transition-colors"
+                      style={{
+                        padding: '16px',
+                        borderRadius: '14px',
+                        background: 'rgba(255,255,255,0.05)',
+                        border: '1px solid rgba(255,255,255,0.08)',
+                      }}
+                    >
                       <div className={`flex-shrink-0 w-10 h-10 ${bg} rounded-xl flex items-center justify-center`}>
                         <Icon className={`w-5 h-5 ${accent}`} />
                       </div>
                       <div>
-                        <h3 className="font-bold text-white text-sm mb-1">{title}</h3>
-                        <p className="text-gray-400 text-xs leading-relaxed">{desc}</p>
+                        <h3
+                          className="font-bold text-white mb-1"
+                          style={{ fontSize: '14px' }}
+                        >
+                          {title}
+                        </h3>
+                        <p
+                          className="leading-relaxed"
+                          style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)' }}
+                        >
+                          {desc}
+                        </p>
                       </div>
                     </div>
                   ))}
