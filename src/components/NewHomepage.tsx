@@ -178,7 +178,7 @@ export default function NewHomepage() {
           to   { opacity: 1; transform: translateY(0); }
         }
       `}</style>
-      <div className="relative w-full overflow-hidden" style={{ height: '92vh', minHeight: '520px' }}>
+      <div className="relative w-full overflow-hidden" style={{ height: 'clamp(260px, 42vw, 360px)' }}>
         {/* Background images — stacked, crossfade */}
         {HERO_SLIDES.map((slide, i) => (
           <div
