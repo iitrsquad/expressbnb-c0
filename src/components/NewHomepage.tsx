@@ -10,33 +10,28 @@ const CITIES = ['Delhi', 'Gurgaon', 'Noida', 'Greater Noida', 'Rishikesh'];
 
 const HERO_SLIDES = [
   {
-    image: 'https://images.pexels.com/photos/3581368/pexels-photo-3581368.jpeg?auto=compress&cs=tinysrgb&w=1800',
+    image: '/hf_20260421_035538_aa785417-633b-4f75-82cf-7ad18ce345fe.png',
     city: 'Delhi',
-    place: 'Capital vibes',
     tagline: 'Capital stays, unbeatable prices',
   },
   {
-    image: 'https://images.pexels.com/photos/2846217/pexels-photo-2846217.jpeg?auto=compress&cs=tinysrgb&w=1800',
+    image: '/hf_20260421_035548_bc195908-7823-4e0b-8855-212c9916f42d.png',
     city: 'Delhi',
-    place: 'Heritage lanes',
     tagline: 'Heart of the city, verified homes',
   },
   {
-    image: 'https://images.pexels.com/photos/1470502/pexels-photo-1470502.jpeg?auto=compress&cs=tinysrgb&w=1800',
+    image: '/hf_20260421_035555_1a21c02f-f8a3-493b-a91f-a38b0d35d0e8.png',
     city: 'Gurgaon',
-    place: 'Business district',
     tagline: 'Corporate hub, private stays',
   },
   {
-    image: 'https://images.pexels.com/photos/280221/pexels-photo-280221.jpeg?auto=compress&cs=tinysrgb&w=1800',
+    image: '/hf_20260421_035601_66b783e2-f00b-4935-a8ab-9a018055df45.png',
     city: 'Noida',
-    place: 'Modern skyline',
     tagline: 'Modern city, affordable comfort',
   },
   {
-    image: 'https://images.pexels.com/photos/1666021/pexels-photo-1666021.jpeg?auto=compress&cs=tinysrgb&w=1800',
+    image: '/hf_20260421_035615_b04f7bfa-fec6-4a1b-998c-f50871270636.png',
     city: 'Rishikesh',
-    place: 'Mountain retreat',
     tagline: 'Escape to the mountains',
   },
 ];
@@ -219,51 +214,10 @@ export default function NewHomepage() {
           }}
         />
 
-        {/* City label — bottom left, desktop only */}
-        <div className="absolute bottom-24 left-10 hidden md:block" style={{ zIndex: 2 }}>
-          <p
-            key={heroIndex}
-            className="text-white font-bold text-sm tracking-widest uppercase opacity-70 mb-1"
-            style={{ animation: 'fadeSlideUp 0.6s ease forwards' }}
-          >
-            {HERO_SLIDES[heroIndex].city}
-          </p>
-          <p
-            key={'place-' + heroIndex}
-            className="text-white font-bold text-2xl"
-            style={{ animation: 'fadeSlideUp 0.6s ease forwards' }}
-          >
-            {HERO_SLIDES[heroIndex].place}
-          </p>
-        </div>
-
-        {/* Dot indicators */}
-        <div
-          className="absolute left-1/2 -translate-x-1/2 flex"
-          style={{ bottom: '12px', gap: '5px', zIndex: 2 }}
-        >
-          {HERO_SLIDES.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setHeroIndex(i)}
-              aria-label={`Go to slide ${i + 1}`}
-              style={{
-                width: i === heroIndex ? 20 : 6,
-                height: 6,
-                borderRadius: 9999,
-                background: i === heroIndex ? '#ff385c' : 'rgba(255,255,255,0.4)',
-                border: 'none',
-                cursor: 'pointer',
-                padding: 0,
-                transition: 'all 0.3s ease',
-              }}
-            />
-          ))}
-        </div>
 
         {/* Main hero content — centered */}
         <div
-          className="relative flex flex-col items-center justify-end h-full pb-16 md:pb-24 px-4 text-center"
+          className="relative flex flex-col items-center justify-end h-full pb-10 md:pb-16 px-4 text-center"
           style={{ zIndex: 2 }}
         >
           {/* Headline: 28px mobile, clamp on desktop */}
@@ -361,10 +315,41 @@ export default function NewHomepage() {
             </button>
           </div>
         </div>
+
+        {/* Slide indicator dots */}
+        <div
+          style={{
+            position: 'absolute',
+            bottom: 16,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            display: 'flex',
+            gap: 6,
+            zIndex: 10,
+          }}
+        >
+          {HERO_SLIDES.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setHeroIndex(i)}
+              aria-label={`Go to slide ${i + 1}`}
+              style={{
+                width: i === heroIndex ? 24 : 8,
+                height: 8,
+                borderRadius: 9999,
+                background: i === heroIndex ? '#ff385c' : 'rgba(255,255,255,0.5)',
+                border: 'none',
+                cursor: 'pointer',
+                padding: 0,
+                transition: 'all 0.3s ease',
+              }}
+            />
+          ))}
+        </div>
       </div>
 
       {/* City Quick Links */}
-      <div className="bg-white border-b" style={{ borderBottomColor: '#f0f0f0', padding: '12px 16px' }}>
+      <div className="bg-white border-b" style={{ borderBottomColor: '#f0f0f0', marginTop: 0, paddingTop: '12px', paddingBottom: '12px', paddingLeft: '16px', paddingRight: '16px' }}>
         <div
           className="flex overflow-x-auto scrollbar-hide"
           style={{ gap: '8px' }}
