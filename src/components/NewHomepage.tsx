@@ -10,33 +10,33 @@ const CITIES = ['Delhi', 'Gurgaon', 'Noida', 'Greater Noida', 'Rishikesh'];
 
 const HERO_SLIDES = [
   {
-    image: 'https://images.unsplash.com/photo-1587474260584-136574528ed5?w=1800&q=80',
+    image: 'https://images.pexels.com/photos/3581368/pexels-photo-3581368.jpeg?auto=compress&cs=tinysrgb&w=1800',
     city: 'Delhi',
-    place: 'India Gate',
+    place: 'Capital vibes',
     tagline: 'Capital stays, unbeatable prices',
   },
   {
-    image: 'https://images.unsplash.com/photo-1597040663342-45b6af3d91a5?w=1800&q=80',
+    image: 'https://images.pexels.com/photos/2846217/pexels-photo-2846217.jpeg?auto=compress&cs=tinysrgb&w=1800',
     city: 'Delhi',
-    place: 'Connaught Place',
+    place: 'Heritage lanes',
     tagline: 'Heart of the city, verified homes',
   },
   {
-    image: 'https://images.unsplash.com/photo-1555636222-cae831e670b3?w=1800&q=80',
+    image: 'https://images.pexels.com/photos/1470502/pexels-photo-1470502.jpeg?auto=compress&cs=tinysrgb&w=1800',
     city: 'Gurgaon',
-    place: 'Cyber City',
+    place: 'Business district',
     tagline: 'Corporate hub, private stays',
   },
   {
-    image: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=1800&q=80',
+    image: 'https://images.pexels.com/photos/280221/pexels-photo-280221.jpeg?auto=compress&cs=tinysrgb&w=1800',
     city: 'Noida',
-    place: 'Sector 62',
+    place: 'Modern skyline',
     tagline: 'Modern city, affordable comfort',
   },
   {
-    image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1800&q=80',
+    image: 'https://images.pexels.com/photos/1666021/pexels-photo-1666021.jpeg?auto=compress&cs=tinysrgb&w=1800',
     city: 'Rishikesh',
-    place: 'The Ganges',
+    place: 'Mountain retreat',
     tagline: 'Escape to the mountains',
   },
 ];
