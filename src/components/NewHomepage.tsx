@@ -8,6 +8,39 @@ import type { Property } from '../lib/database.types';
 
 const CITIES = ['Delhi', 'Gurgaon', 'Noida', 'Greater Noida', 'Rishikesh'];
 
+const HERO_SLIDES = [
+  {
+    image: 'https://images.unsplash.com/photo-1587474260584-136574528ed5?w=1800&q=80',
+    city: 'Delhi',
+    place: 'India Gate',
+    tagline: 'Capital stays, unbeatable prices',
+  },
+  {
+    image: 'https://images.unsplash.com/photo-1597040663342-45b6af3d91a5?w=1800&q=80',
+    city: 'Delhi',
+    place: 'Connaught Place',
+    tagline: 'Heart of the city, verified homes',
+  },
+  {
+    image: 'https://images.unsplash.com/photo-1555636222-cae831e670b3?w=1800&q=80',
+    city: 'Gurgaon',
+    place: 'Cyber City',
+    tagline: 'Corporate hub, private stays',
+  },
+  {
+    image: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?w=1800&q=80',
+    city: 'Noida',
+    place: 'Sector 62',
+    tagline: 'Modern city, affordable comfort',
+  },
+  {
+    image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1800&q=80',
+    city: 'Rishikesh',
+    place: 'The Ganges',
+    tagline: 'Escape to the mountains',
+  },
+];
+
 const CITY_META: Record<string, { emoji: string; tagline: string }> = {
   Delhi: { emoji: '🏙️', tagline: 'Capital stays, unbeatable prices' },
   Gurgaon: { emoji: '🏢', tagline: 'Modern living in Millennium City' },
@@ -20,10 +53,18 @@ export default function NewHomepage() {
   const [propertiesByCity, setPropertiesByCity] = useState<Record<string, Property[]>>({});
   const [loading, setLoading] = useState(true);
   const [activeCity, setActiveCity] = useState<string>('Delhi');
+  const [heroIndex, setHeroIndex] = useState(0);
   const scrollRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   useEffect(() => {
     loadPropertiesByCity();
+  }, []);
+
+  useEffect(() => {
+    const t = setInterval(() => {
+      setHeroIndex(i => (i + 1) % HERO_SLIDES.length);
+    }, 4000);
+    return () => clearInterval(t);
   }, []);
 
   const loadPropertiesByCity = async () => {
@@ -131,49 +172,102 @@ export default function NewHomepage() {
       </header>
 
       {/* Hero Section */}
-      <section
-        className="relative w-full flex flex-col items-center justify-center overflow-hidden"
-        style={{
-          height: 'clamp(260px, 42vw, 360px)',
-        }}
-      >
-        {/* Background image */}
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage:
-              "url('https://images.unsplash.com/photo-1548013146-72479768bada?w=1800&q=80')",
-          }}
-        />
+      <style>{`
+        @keyframes fadeSlideUp {
+          from { opacity: 0; transform: translateY(12px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
+      <div className="relative w-full overflow-hidden" style={{ height: '92vh', minHeight: '520px' }}>
+        {/* Background images — stacked, crossfade */}
+        {HERO_SLIDES.map((slide, i) => (
+          <div
+            key={i}
+            className="absolute inset-0 bg-cover bg-center"
+            style={{
+              backgroundImage: `url(${slide.image})`,
+              opacity: i === heroIndex ? 1 : 0,
+              transition: 'opacity 1.2s ease-in-out',
+              zIndex: 0,
+            }}
+          />
+        ))}
+
         {/* Gradient overlay */}
         <div
           className="absolute inset-0"
           style={{
             background:
-              'linear-gradient(to bottom, rgba(0,0,0,0.28) 0%, rgba(0,0,0,0.42) 60%, rgba(0,0,0,0.55) 100%)',
+              'linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.45) 50%, rgba(0,0,0,0.75) 100%)',
+            zIndex: 1,
           }}
         />
 
-        {/* Content */}
-        <div className="relative z-10 w-full max-w-3xl flex flex-col items-center px-4">
+        {/* City label — bottom left, changes with slide */}
+        <div className="absolute bottom-24 left-10 hidden md:block" style={{ zIndex: 2 }}>
+          <p
+            key={heroIndex}
+            className="text-white font-bold text-sm tracking-widest uppercase opacity-70 mb-1"
+            style={{ animation: 'fadeSlideUp 0.6s ease forwards' }}
+          >
+            {HERO_SLIDES[heroIndex].city}
+          </p>
+          <p
+            key={'place-' + heroIndex}
+            className="text-white font-bold text-2xl"
+            style={{ animation: 'fadeSlideUp 0.6s ease forwards' }}
+          >
+            {HERO_SLIDES[heroIndex].place}
+          </p>
+        </div>
+
+        {/* Dot indicators — bottom center */}
+        <div
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2"
+          style={{ zIndex: 2 }}
+        >
+          {HERO_SLIDES.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setHeroIndex(i)}
+              aria-label={`Go to slide ${i + 1}`}
+              style={{
+                width: i === heroIndex ? 28 : 8,
+                height: 8,
+                borderRadius: 9999,
+                background: i === heroIndex ? '#ff385c' : 'rgba(255,255,255,0.45)',
+                border: 'none',
+                cursor: 'pointer',
+                padding: 0,
+                transition: 'all 0.3s ease',
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Main hero content — centered */}
+        <div
+          className="relative flex flex-col items-center justify-end h-full pb-20 md:pb-24 px-4 text-center"
+          style={{ zIndex: 2 }}
+        >
           <h1
             className="text-center text-white font-extrabold"
             style={{
-              fontSize: 'clamp(26px, 5vw, 44px)',
+              fontSize: 'clamp(32px, 5.5vw, 56px)',
               letterSpacing: '-0.5px',
-              textShadow: '0 2px 16px rgba(0,0,0,0.35)',
+              textShadow: '0 2px 20px rgba(0,0,0,0.4)',
               lineHeight: 1.1,
             }}
           >
             India's Smarter Stay
           </h1>
           <p
-            className="text-center mt-2"
+            className="text-center mt-3"
             style={{
-              fontSize: 'clamp(13px, 1.3vw, 16px)',
+              fontSize: 'clamp(14px, 1.4vw, 18px)',
               color: 'rgba(255,255,255,0.92)',
               fontWeight: 400,
-              textShadow: '0 1px 8px rgba(0,0,0,0.3)',
+              textShadow: '0 1px 8px rgba(0,0,0,0.35)',
             }}
           >
             Verified stays, zero commission, better prices
@@ -181,13 +275,13 @@ export default function NewHomepage() {
 
           {/* Search bar */}
           <div
-            className="mt-5 md:mt-6 flex items-center bg-white"
+            className="mt-6 md:mt-8 flex items-center bg-white"
             style={{
-              width: 'min(520px, calc(100% - 8px))',
-              height: '52px',
+              width: 'min(560px, calc(100% - 8px))',
+              height: '56px',
               borderRadius: '40px',
-              boxShadow: '0 6px 24px rgba(0,0,0,0.22)',
-              padding: '6px 6px 6px 20px',
+              boxShadow: '0 8px 28px rgba(0,0,0,0.25)',
+              padding: '6px 6px 6px 22px',
             }}
           >
             <input
@@ -201,20 +295,20 @@ export default function NewHomepage() {
             <button
               onClick={scrollToListings}
               aria-label="Filters"
-              className="w-9 h-9 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors flex-shrink-0"
+              className="w-10 h-10 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors flex-shrink-0"
             >
               <SlidersHorizontal className="w-4 h-4" />
             </button>
             <button
               onClick={scrollToListings}
               aria-label="Search"
-              className="w-10 h-10 ml-1 rounded-xl bg-[#ff385c] hover:bg-[#e8314f] flex items-center justify-center flex-shrink-0 transition-colors"
+              className="w-11 h-11 ml-1 rounded-xl bg-[#ff385c] hover:bg-[#e8314f] flex items-center justify-center flex-shrink-0 transition-colors"
             >
               <Search className="w-4 h-4 text-white" />
             </button>
           </div>
         </div>
-      </section>
+      </div>
 
       {/* City Quick Links */}
       <div className="bg-white border-b border-gray-200 py-4">
