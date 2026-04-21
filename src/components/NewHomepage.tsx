@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Search, ChevronRight, Sparkles, Shield, Zap, Award, MapPin, TrendingUp } from 'lucide-react';
+import { Search, ChevronRight, Sparkles, Shield, Zap } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import ConversionPropertyCard from './ConversionPropertyCard';
 import SEOHead from './SEOHead';
@@ -19,16 +19,11 @@ const CITY_META: Record<string, { emoji: string; tagline: string }> = {
 export default function NewHomepage() {
   const [propertiesByCity, setPropertiesByCity] = useState<Record<string, Property[]>>({});
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('homes');
-  const [scrollY, setScrollY] = useState(0);
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [activeCity, setActiveCity] = useState<string>('Delhi');
   const scrollRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   useEffect(() => {
     loadPropertiesByCity();
-    const handleScroll = () => setScrollY(window.scrollY);
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const loadPropertiesByCity = async () => {
@@ -55,8 +50,18 @@ export default function NewHomepage() {
     }
   };
 
-  const handleSearchClick = () => {
-    window.scrollTo({ top: 300, behavior: 'smooth' });
+  const scrollToListings = () => {
+    const el = document.getElementById('listings');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      window.scrollTo({ top: 600, behavior: 'smooth' });
+    }
+  };
+
+  const handleHostLogin = () => {
+    window.history.pushState({}, '', '/host/login');
+    window.dispatchEvent(new PopStateEvent('popstate'));
   };
 
   const handleCityClick = (city: string) => {
@@ -65,8 +70,10 @@ export default function NewHomepage() {
     window.dispatchEvent(new PopStateEvent('popstate'));
   };
 
-  const headerScrolled = scrollY > 20;
-  const totalProperties = Object.values(propertiesByCity).reduce((acc, arr) => acc + arr.length, 0);
+  const handleCityPillClick = (city: string) => {
+    setActiveCity(city);
+    handleCityClick(city);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -80,150 +87,175 @@ export default function NewHomepage() {
         }}
       />
 
-      {/* Sticky Header */}
+      {/* Sticky Navbar */}
       <header
-        className={`sticky top-0 z-50 transition-all duration-300 ${
-          headerScrolled
-            ? 'bg-white/95 backdrop-blur-xl shadow-sm border-b border-gray-100'
-            : 'bg-white'
-        }`}
+        className="sticky top-0 z-50 bg-white"
+        style={{ borderBottom: '1px solid rgba(0,0,0,0.08)' }}
       >
-        <div className="px-4 pt-3 pb-2">
-          {/* Logo row */}
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <img src="/90d3767f-65eb-431d-8005-c9f9bb5f2fde.png" alt="XpressBnB" className="h-9 w-9 object-contain" />
-              <span className="text-lg font-extrabold text-gray-900 tracking-tight">
-                Xpress<span className="text-rose-600">BnB</span>
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => {
-                  window.history.pushState({}, '', '/host/login');
-                  window.dispatchEvent(new PopStateEvent('popstate'));
-                }}
-                className="text-sm font-semibold text-gray-700 px-4 py-2 rounded-full border border-gray-200 hover:border-gray-400 hover:bg-gray-50 transition-all"
-              >
-                Host login
-              </button>
-              <button
-                onClick={() => setMenuOpen(!menuOpen)}
-                className="p-2.5 rounded-full hover:bg-gray-100 active:scale-95 transition-all border border-gray-200"
-              >
-                <div className="space-y-1.5">
-                  <div className="w-5 h-0.5 bg-gray-800 rounded-full" />
-                  <div className="w-5 h-0.5 bg-gray-800 rounded-full" />
-                  <div className="w-5 h-0.5 bg-gray-800 rounded-full" />
-                </div>
-              </button>
-            </div>
+        <div className="max-w-7xl mx-auto px-4 md:px-10 flex items-center justify-between h-[60px] md:h-[72px]">
+          {/* Logo */}
+          <div className="flex items-center gap-2">
+            <img src="/90d3767f-65eb-431d-8005-c9f9bb5f2fde.png" alt="XpressBnB" className="h-8 md:h-9 w-8 md:w-9 object-contain" />
+            <span className="text-lg md:text-xl font-extrabold text-gray-900 tracking-tight">
+              Xpress<span className="text-[#ff385c]">BnB</span>
+            </span>
           </div>
 
-          {/* Search bar */}
-          <button
-            onClick={handleSearchClick}
-            className="w-full group"
-          >
-            <div className="flex items-center gap-3 px-4 py-3.5 bg-white rounded-2xl border border-gray-200 shadow-md hover:shadow-lg hover:border-gray-300 transition-all duration-200 group-active:scale-[0.99]">
-              <div className="p-1.5 bg-rose-500 rounded-xl">
-                <Search className="w-4 h-4 text-white" />
-              </div>
-              <div className="flex-1 text-left">
-                <div className="text-sm font-semibold text-gray-900">Where to?</div>
-                <div className="text-xs text-gray-400">Delhi NCR · Rishikesh · Any week</div>
-              </div>
-              <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
-                <Search className="w-3.5 h-3.5 text-gray-500" />
-              </div>
-            </div>
-          </button>
-        </div>
-
-        {/* Category Tabs */}
-        <div className="flex gap-1 px-4 pb-2 overflow-x-auto scrollbar-hide mt-1">
-          {['homes', 'experiences', 'services'].map(tab => (
-            <button
-              key={tab}
-              onClick={() => tab === 'homes' && setActiveTab(tab)}
-              disabled={tab !== 'homes'}
-              className={`relative pb-2.5 pt-1 px-1 whitespace-nowrap text-sm font-semibold capitalize transition-all ${
-                activeTab === tab
-                  ? 'text-gray-900'
-                  : 'text-gray-400 cursor-not-allowed'
-              } mr-5`}
-            >
-              {tab}
-              {tab !== 'homes' && (
-                <span className="ml-1.5 text-[10px] bg-gray-100 text-gray-400 px-2 py-0.5 rounded-full font-medium">Soon</span>
-              )}
-              {activeTab === tab && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-900 rounded-full" />
-              )}
+          {/* Center nav (desktop only) */}
+          <nav className="hidden md:flex items-center gap-1">
+            <button className="px-5 py-2 rounded-full text-sm font-semibold text-gray-900 hover:bg-gray-50 transition-colors">
+              Homes
             </button>
-          ))}
+            <button
+              disabled
+              className="px-5 py-2 rounded-full text-sm font-semibold text-gray-400 cursor-default"
+            >
+              Experiences
+            </button>
+            <button
+              disabled
+              className="px-5 py-2 rounded-full text-sm font-semibold text-gray-400 cursor-default"
+            >
+              Services
+            </button>
+          </nav>
+
+          {/* Host login */}
+          <button
+            onClick={handleHostLogin}
+            className="bg-[#ff385c] text-white rounded-full px-5 md:px-6 py-2 md:py-2.5 font-semibold text-sm hover:bg-[#e8314f] transition-colors shadow-sm"
+          >
+            Host Login
+          </button>
         </div>
       </header>
 
-      {/* Hero Stats Bar */}
-      <div className="bg-gradient-to-r from-rose-600 to-rose-500 px-4 py-3">
-        <div className="flex items-center justify-between max-w-7xl mx-auto">
-          <div className="flex items-center gap-2">
-            <TrendingUp className="w-4 h-4 text-rose-100" />
-            <span className="text-white text-sm font-medium">
-              {loading ? '...' : totalProperties}+ verified properties
-            </span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-            <span className="text-rose-100 text-xs font-medium">Live availability</span>
-          </div>
-        </div>
-      </div>
+      {/* Hero Section */}
+      <section
+        className="relative w-full flex flex-col items-center justify-end overflow-hidden"
+        style={{
+          minHeight: '420px',
+          height: 'clamp(420px, 75vw, 92vh)',
+        }}
+      >
+        {/* Background image */}
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage:
+              "url('https://images.unsplash.com/photo-1548013146-72479768bada?w=1800&q=80')",
+          }}
+        />
+        {/* Gradient overlay */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              'linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.55) 60%, rgba(0,0,0,0.72) 100%)',
+          }}
+        />
 
-      {/* Trust Badges */}
-      <div className="bg-white border-b border-gray-100 px-4 py-4">
-        <div className="flex items-center gap-3 overflow-x-auto scrollbar-hide">
-          {[
-            { icon: Sparkles, label: '100% Verified', sub: 'Every property checked', color: 'text-amber-500', bg: 'bg-amber-50', border: 'border-amber-100' },
-            { icon: Zap, label: 'No Commission', sub: 'Zero platform fees', color: 'text-green-600', bg: 'bg-green-50', border: 'border-green-100' },
-            { icon: Shield, label: 'Pay at Property', sub: 'No advance payment', color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-100' },
-            { icon: Award, label: 'Best Price', sub: 'Guaranteed lowest', color: 'text-rose-600', bg: 'bg-rose-50', border: 'border-rose-100' },
-          ].map(({ icon: Icon, label, sub, color, bg, border }) => (
-            <div
-              key={label}
-              className={`flex-shrink-0 flex items-center gap-3 px-4 py-3 rounded-2xl border ${bg} ${border}`}
-            >
-              <div className={`${color}`}>
-                <Icon className="w-5 h-5" />
-              </div>
-              <div>
-                <div className="text-xs font-bold text-gray-900 whitespace-nowrap">{label}</div>
-                <div className="text-[10px] text-gray-500 whitespace-nowrap">{sub}</div>
-              </div>
+        {/* Content */}
+        <div className="relative z-10 w-full flex flex-col items-center px-4 pb-10 md:pb-16">
+          <h1
+            className="text-center text-white font-extrabold"
+            style={{
+              fontSize: 'clamp(36px, 6vw, 64px)',
+              letterSpacing: 'clamp(-1.5px, -0.1vw, -0.5px)',
+              textShadow: '0 2px 20px rgba(0,0,0,0.3)',
+              lineHeight: 1.05,
+            }}
+          >
+            India's Smarter Stay
+          </h1>
+          <p
+            className="text-center mt-3"
+            style={{
+              fontSize: 'clamp(15px, 1.4vw, 20px)',
+              color: 'rgba(255,255,255,0.88)',
+              fontWeight: 400,
+            }}
+          >
+            Verified stays · Zero commission · Better prices
+          </p>
+
+          {/* Search bar */}
+          <button
+            onClick={scrollToListings}
+            className="mt-5 md:mt-8 flex items-center bg-white overflow-hidden transition-transform active:scale-[0.99]"
+            style={{
+              width: 'min(580px, calc(100% - 32px))',
+              height: 'clamp(54px, 7vw, 64px)',
+              borderRadius: '60px',
+              boxShadow: '0 4px 24px rgba(0,0,0,0.22)',
+            }}
+          >
+            <div className="flex-1 flex flex-col items-start px-6 text-left">
+              <span className="font-bold text-gray-900" style={{ fontSize: '15px' }}>
+                Where to?
+              </span>
+              <span className="text-gray-400" style={{ fontSize: '13px' }}>
+                Delhi NCR · Any stay
+              </span>
             </div>
-          ))}
-        </div>
-      </div>
+            <div className="w-12 h-12 mr-2 rounded-full bg-[#ff385c] flex items-center justify-center flex-shrink-0">
+              <Search className="w-5 h-5 text-white" />
+            </div>
+          </button>
 
-      {/* City Quick Jump */}
-      <div className="bg-white px-4 py-4 border-b border-gray-100">
-        <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-          {CITIES.map(city => (
-            <button
-              key={city}
-              onClick={() => handleCityClick(city)}
-              className="flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full bg-gray-50 border border-gray-200 hover:bg-rose-50 hover:border-rose-200 hover:text-rose-700 text-gray-700 text-sm font-medium transition-all"
-            >
-              <MapPin className="w-3.5 h-3.5" />
-              {city}
-            </button>
-          ))}
+          {/* Trust pills */}
+          <div className="flex gap-3 justify-center flex-wrap mt-5 px-2">
+            {['✓ 100% Verified', '₹ No Commission', '🔒 Pay at Property'].map(label => (
+              <span
+                key={label}
+                className="text-white whitespace-nowrap"
+                style={{
+                  background: 'rgba(255,255,255,0.18)',
+                  border: '1px solid rgba(255,255,255,0.35)',
+                  backdropFilter: 'blur(8px)',
+                  WebkitBackdropFilter: 'blur(8px)',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  padding: '8px 18px',
+                  borderRadius: '30px',
+                }}
+              >
+                {label}
+              </span>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* City Quick Links */}
+      <div className="bg-white border-b border-gray-200 py-4">
+        <div
+          className="flex overflow-x-auto scrollbar-hide"
+          style={{ gap: '10px', padding: '0 16px' }}
+        >
+          <div className="hidden md:block" style={{ width: '24px', flexShrink: 0 }} />
+          {CITIES.map(city => {
+            const isActive = activeCity === city;
+            return (
+              <button
+                key={city}
+                onClick={() => handleCityPillClick(city)}
+                className={`flex-shrink-0 px-5 py-2.5 rounded-full font-semibold text-sm border transition-all ${
+                  isActive
+                    ? 'bg-gray-900 text-white border-gray-900'
+                    : 'bg-white text-gray-700 border-gray-200 hover:border-gray-400'
+                }`}
+              >
+                {city}
+              </button>
+            );
+          })}
+          <div className="hidden md:block" style={{ width: '24px', flexShrink: 0 }} />
         </div>
       </div>
 
       {/* Main content */}
-      <div className="max-w-7xl mx-auto pb-24">
+      <div id="listings" className="max-w-7xl mx-auto pb-24 scroll-mt-20">
         {loading ? (
           <div className="space-y-10 px-4 pt-8">
             {[1, 2, 3].map(i => (
