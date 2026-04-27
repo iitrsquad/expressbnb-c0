@@ -3,6 +3,7 @@ import { useAuth } from './contexts/AuthContext';
 import PublicSite from './PublicSite';
 import PropertyPage from './pages/PropertyPage';
 import CityListingPage from './pages/CityListingPage';
+import RishikeshStaysPage from './pages/RishikeshStaysPage';
 import NewHomepage from './components/NewHomepage';
 import AuthRouter from './pages/auth/AuthRouter';
 import HostDashboardLayout from './pages/host/HostDashboardLayout';
@@ -82,6 +83,9 @@ export default function AppRouter() {
 
     if (currentPath.startsWith('/stays/')) {
       const citySlug = currentPath.split('/stays/')[1].split('/')[0];
+      if (citySlug === 'rishikesh') {
+        return <RishikeshStaysPage />;
+      }
       return <CityListingPage city={citySlug} />;
     }
 
