@@ -22,7 +22,33 @@ import type { Property } from '../lib/database.types';
 
 const CITIES = ['Delhi', 'Gurgaon', 'Noida', 'Greater Noida', 'Rishikesh'];
 
-const HERO_IMAGE = '/hf_20260421_035538_aa785417-633b-4f75-82cf-7ad18ce345fe.png';
+const HERO_SLIDES = [
+  {
+    city: 'Delhi',
+    tagline: 'Capital stays, unbeatable prices',
+    image: '/hf_20260421_035538_aa785417-633b-4f75-82cf-7ad18ce345fe.png',
+  },
+  {
+    city: 'Gurgaon',
+    tagline: 'Corporate hub, private stays',
+    image: '/hf_20260421_035555_1a21c02f-f8a3-493b-a91f-a38b0d35d0e8.png',
+  },
+  {
+    city: 'Noida',
+    tagline: 'Modern city, verified comfort',
+    image: '/hf_20260421_035601_66b783e2-f00b-4935-a8ab-9a018055df45.png',
+  },
+  {
+    city: 'Greater Noida',
+    tagline: 'Spacious homes, serene surroundings',
+    image: '/hf_20260421_035548_bc195908-7823-4e0b-8855-212c9916f42d.png',
+  },
+  {
+    city: 'Rishikesh',
+    tagline: 'Yoga capital, riverside retreats',
+    image: '/hf_20260421_035615_b04f7bfa-fec6-4a1b-998c-f50871270636.png',
+  },
+];
 
 const NAV_LINKS = [
   { label: 'Stays', target: 'listings' },
@@ -136,6 +162,7 @@ export default function NewHomepage() {
   const [loading, setLoading] = useState(true);
   const [scrolled, setScrolled] = useState(false);
   const [testimonials, setTestimonials] = useState<Testimonial[]>(FALLBACK_TESTIMONIALS);
+  const [heroIndex, setHeroIndex] = useState(0);
 
   useEffect(() => {
     loadProperties();
@@ -147,6 +174,13 @@ export default function NewHomepage() {
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
     return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setHeroIndex(i => (i + 1) % HERO_SLIDES.length);
+    }, 5000);
+    return () => clearInterval(id);
   }, []);
 
   const loadProperties = async () => {
@@ -303,10 +337,18 @@ export default function NewHomepage() {
         className="relative w-full overflow-hidden"
         style={{ minHeight: 'min(88vh, 820px)' }}
       >
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${HERO_IMAGE})` }}
-        />
+        {HERO_SLIDES.map((slide, i) => (
+          <div
+            key={slide.city}
+            className="absolute inset-0 bg-cover bg-center"
+            style={{
+              backgroundImage: `url(${slide.image})`,
+              opacity: i === heroIndex ? 1 : 0,
+              transform: i === heroIndex ? 'scale(1.05)' : 'scale(1)',
+              transition: 'opacity 1500ms ease-in-out, transform 8000ms ease-out',
+            }}
+          />
+        ))}
         <div
           className="absolute inset-0"
           style={{
@@ -321,26 +363,60 @@ export default function NewHomepage() {
         />
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-8 pt-32 md:pt-40 pb-40 md:pb-48">
-          <div className="max-w-2xl">
-            <span className="inline-flex items-center gap-2 bg-white/95 backdrop-blur px-4 py-1.5 rounded-full text-[11px] font-bold tracking-[0.18em] text-gray-900 shadow-sm mb-6 md:mb-8">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#ff385c]" />
-              VERIFIED STAYS. TRUSTED HOSTS.
-            </span>
-            <h1
-              className="text-white font-extrabold leading-[1.05] tracking-tight"
-              style={{ fontSize: 'clamp(36px, 5.4vw, 64px)' }}
-            >
-              Find Your Verified
-              <br />
-              Home Away from Home
-            </h1>
-            <p
-              className="mt-5 text-white/85 leading-relaxed max-w-xl"
-              style={{ fontSize: 'clamp(15px, 1.3vw, 18px)' }}
-            >
-              Book premium stays directly from trusted hosts &mdash; zero commissions,
-              transparent pricing, and instant confirmations.
-            </p>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            <div className="lg:col-span-7 max-w-2xl">
+              <span className="inline-flex items-center gap-2 bg-white/95 backdrop-blur px-4 py-1.5 rounded-full text-[11px] font-bold tracking-[0.18em] text-gray-900 shadow-sm mb-6 md:mb-8">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#ff385c]" />
+                VERIFIED STAYS. TRUSTED HOSTS.
+              </span>
+              <h1
+                className="text-white font-extrabold leading-[1.05] tracking-tight"
+                style={{ fontSize: 'clamp(36px, 5.4vw, 64px)' }}
+              >
+                Find Your Verified
+                <br />
+                Home Away from Home
+              </h1>
+              <p
+                className="mt-5 text-white/85 leading-relaxed max-w-xl"
+                style={{ fontSize: 'clamp(15px, 1.3vw, 18px)' }}
+              >
+                Book premium stays directly from trusted hosts &mdash; zero commissions,
+                transparent pricing, and instant confirmations.
+              </p>
+
+              <div className="mt-8 inline-flex items-center gap-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-full pl-4 pr-2 py-2">
+                <div className="flex items-center gap-2 text-white">
+                  <MapPin className="w-4 h-4 text-[#ff385c]" />
+                  <span className="text-sm font-semibold tracking-wide">
+                    {HERO_SLIDES[heroIndex].city}
+                  </span>
+                  <span className="hidden sm:inline text-xs text-white/70">
+                    &middot; {HERO_SLIDES[heroIndex].tagline}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5 ml-2">
+                  {HERO_SLIDES.map((s, i) => (
+                    <button
+                      key={s.city}
+                      onClick={() => setHeroIndex(i)}
+                      aria-label={`Show ${s.city}`}
+                      className="h-1.5 rounded-full transition-all"
+                      style={{
+                        width: i === heroIndex ? 24 : 6,
+                        background: i === heroIndex ? '#ff385c' : 'rgba(255,255,255,0.45)',
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <CityCarousel
+              slides={HERO_SLIDES}
+              activeIndex={heroIndex}
+              onSelect={setHeroIndex}
+            />
           </div>
         </div>
 
@@ -617,6 +693,92 @@ export default function NewHomepage() {
           </div>
         </div>
       </footer>
+    </div>
+  );
+}
+
+function CityCarousel({
+  slides,
+  activeIndex,
+  onSelect,
+}: {
+  slides: typeof HERO_SLIDES;
+  activeIndex: number;
+  onSelect: (i: number) => void;
+}) {
+  return (
+    <div className="hidden lg:block lg:col-span-5">
+      <div className="relative ml-auto w-full max-w-[420px]">
+        <div className="absolute -top-3 left-4 z-10 inline-flex items-center gap-2 bg-white/95 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold tracking-[0.2em] text-gray-900 shadow">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#ff385c] animate-pulse" />
+          EXPLORE CITIES
+        </div>
+        <div className="relative h-[280px] rounded-3xl overflow-hidden border border-white/20 shadow-2xl">
+          {slides.map((s, i) => (
+            <button
+              key={s.city}
+              onClick={() => onSelect(i)}
+              className="absolute inset-0 group focus:outline-none"
+              style={{
+                opacity: i === activeIndex ? 1 : 0,
+                transform: i === activeIndex ? 'scale(1)' : 'scale(1.04)',
+                transition: 'opacity 800ms ease, transform 1200ms ease',
+                pointerEvents: i === activeIndex ? 'auto' : 'none',
+              }}
+              aria-hidden={i !== activeIndex}
+            >
+              <img
+                src={s.image}
+                alt={s.city}
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
+              <div className="absolute left-5 right-5 bottom-5 text-left text-white">
+                <div className="text-[11px] font-bold tracking-[0.18em] text-white/70 uppercase">
+                  Featured destination
+                </div>
+                <div className="mt-1 text-2xl font-extrabold leading-tight">{s.city}</div>
+                <div className="mt-1 text-sm text-white/80 line-clamp-1">{s.tagline}</div>
+              </div>
+            </button>
+          ))}
+        </div>
+
+        <div className="mt-4 overflow-hidden">
+          <div
+            className="flex gap-3 transition-transform duration-700 ease-out"
+            style={{
+              transform: `translateX(calc(50% - ${activeIndex * 92}px - 38px))`,
+            }}
+          >
+            {slides.map((s, i) => {
+              const isActive = i === activeIndex;
+              return (
+                <button
+                  key={s.city}
+                  onClick={() => onSelect(i)}
+                  className="shrink-0 relative rounded-xl overflow-hidden border transition-all"
+                  style={{
+                    width: isActive ? 92 : 76,
+                    height: isActive ? 64 : 56,
+                    borderColor: isActive ? '#ff385c' : 'rgba(255,255,255,0.25)',
+                    boxShadow: isActive ? '0 8px 24px rgba(255,56,92,0.35)' : 'none',
+                    transform: isActive ? 'translateY(-4px)' : 'translateY(0)',
+                  }}
+                  aria-label={s.city}
+                >
+                  <img src={s.image} alt={s.city} className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                  <span className="absolute left-1.5 bottom-1 right-1.5 text-[10px] font-bold text-white text-left leading-none truncate">
+                    {s.city}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
