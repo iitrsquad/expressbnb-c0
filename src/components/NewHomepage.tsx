@@ -26,7 +26,8 @@ const HERO_SLIDES = [
   {
     city: 'Delhi',
     tagline: 'Capital stays, unbeatable prices',
-    image: '/hf_20260421_035538_aa785417-633b-4f75-82cf-7ad18ce345fe.png',
+    image:
+      'https://images.pexels.com/photos/2506988/pexels-photo-2506988.jpeg?auto=compress&cs=tinysrgb&w=1920',
   },
   {
     city: 'Gurgaon',
@@ -41,7 +42,8 @@ const HERO_SLIDES = [
   {
     city: 'Greater Noida',
     tagline: 'Spacious homes, serene surroundings',
-    image: '/hf_20260421_035548_bc195908-7823-4e0b-8855-212c9916f42d.png',
+    image:
+      'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=1920',
   },
   {
     city: 'Rishikesh',
@@ -353,10 +355,17 @@ export default function NewHomepage() {
           className="absolute inset-0"
           style={{
             background:
-              'linear-gradient(100deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.45) 45%, rgba(0,0,0,0.15) 100%)',
+              'linear-gradient(100deg, rgba(8,10,18,0.78) 0%, rgba(8,10,18,0.45) 38%, rgba(8,10,18,0.15) 70%, rgba(8,10,18,0.0) 100%)',
           }}
         />
-        <ShaderBackground intensity={0.7} />
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              'radial-gradient(120% 80% at 80% 30%, rgba(245,158,11,0.18), rgba(0,0,0,0) 60%)',
+          }}
+        />
+        <ShaderBackground intensity={0.55} />
         <div
           className="absolute inset-x-0 bottom-0 h-32"
           style={{ background: 'linear-gradient(to bottom, transparent, white)' }}
