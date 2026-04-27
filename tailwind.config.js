@@ -1,8 +1,14 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+  darkMode: 'class',
   theme: {
     extend: {
+      colors: {
+        background: '#0d0d0d',
+        foreground: '#f5f5f5',
+        primary: '#F2994A',
+      },
       keyframes: {
         shimmer: {
           '0%': { backgroundPosition: '-200% 0' },
@@ -15,16 +21,4 @@ export default {
     },
   },
   plugins: [],
-}; // tailwind.config.js
-module.exports = {
-  darkMode: 'class',
-  theme: {
-    extend: {
-      colors: {
-        background: '#0d0d0d',
-        foreground: '#f5f5f5',
-        primary: '#F2994A', // your orange accent
-      },
-    },
-  },
 };
