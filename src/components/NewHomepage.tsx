@@ -742,7 +742,6 @@ function CityCarousel({
                 className="w-full h-full object-cover"
                 loading="lazy"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
               <div className="absolute left-5 right-5 bottom-5 text-left text-white">
                 <div className="text-[11px] font-bold tracking-[0.18em] text-white/70 uppercase">
                   Featured destination
