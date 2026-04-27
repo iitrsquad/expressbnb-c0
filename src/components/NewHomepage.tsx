@@ -1,68 +1,155 @@
-import { useState, useEffect, useRef } from 'react';
-import { Search, ChevronRight, Sparkles, Shield, Zap, SlidersHorizontal } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import {
+  Search,
+  ChevronRight,
+  Lock,
+  Zap,
+  Star,
+  MapPin,
+  Calendar,
+  Users,
+  Globe,
+  Heart,
+  CheckCircle,
+  ShieldCheck,
+  ArrowRight,
+} from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import ConversionPropertyCard from './ConversionPropertyCard';
+import ShaderBackground from './ShaderBackground';
 import SEOHead from './SEOHead';
 import { generateOrganizationStructuredData } from '../lib/seo';
 import type { Property } from '../lib/database.types';
 
 const CITIES = ['Delhi', 'Gurgaon', 'Noida', 'Greater Noida', 'Rishikesh'];
 
-const HERO_SLIDES = [
+const HERO_IMAGE = '/hf_20260421_035538_aa785417-633b-4f75-82cf-7ad18ce345fe.png';
+
+const NAV_LINKS = [
+  { label: 'Stays', target: 'listings' },
+  { label: 'Experiences', target: 'listings' },
+  { label: 'Host', target: 'host' },
+  { label: 'About Us', target: 'why' },
+  { label: 'Help', target: 'why' },
+];
+
+const TRUST_ITEMS = [
   {
-    image: '/hf_20260421_035538_aa785417-633b-4f75-82cf-7ad18ce345fe.png',
-    city: 'Delhi',
-    tagline: 'Capital stays, unbeatable prices',
+    icon: Star,
+    title: '4.8 Average Rating',
+    sub: 'From 10,000+ reviews',
+    tint: 'bg-amber-50 text-amber-500',
   },
   {
-    image: '/hf_20260421_035548_bc195908-7823-4e0b-8855-212c9916f42d.png',
-    city: 'Delhi',
-    tagline: 'Heart of the city, verified homes',
+    icon: ShieldCheck,
+    title: 'Verified Hosts',
+    sub: 'Every host is verified',
+    tint: 'bg-emerald-50 text-emerald-600',
   },
   {
-    image: '/hf_20260421_035555_1a21c02f-f8a3-493b-a91f-a38b0d35d0e8.png',
-    city: 'Gurgaon',
-    tagline: 'Corporate hub, private stays',
+    icon: Lock,
+    title: 'Secure Payments',
+    sub: 'Your payments are safe',
+    tint: 'bg-slate-100 text-slate-700',
   },
   {
-    image: '/hf_20260421_035601_66b783e2-f00b-4935-a8ab-9a018055df45.png',
-    city: 'Noida',
-    tagline: 'Modern city, affordable comfort',
-  },
-  {
-    image: '/hf_20260421_035615_b04f7bfa-fec6-4a1b-998c-f50871270636.png',
-    city: 'Rishikesh',
-    tagline: 'Escape to the mountains',
+    icon: Zap,
+    title: 'Zero Commission',
+    sub: 'Save more on every booking',
+    tint: 'bg-amber-50 text-amber-500',
   },
 ];
 
-const CITY_META: Record<string, { emoji: string; tagline: string }> = {
-  Delhi: { emoji: '🏙️', tagline: 'Capital stays, unbeatable prices' },
-  Gurgaon: { emoji: '🏢', tagline: 'Modern living in Millennium City' },
-  Noida: { emoji: '🌆', tagline: 'Tech city verified stays' },
-  'Greater Noida': { emoji: '🏘️', tagline: 'Spacious homes, serene surroundings' },
-  Rishikesh: { emoji: '🏔️', tagline: 'Yoga capital, riverside retreats' },
-};
+const FEATURE_CARDS = [
+  {
+    icon: ShieldCheck,
+    title: '100% Verified',
+    desc: 'Every property is personally inspected and approved by our team before going live.',
+  },
+  {
+    icon: Zap,
+    title: 'Zero Commission',
+    desc: 'Book directly from the host. No middlemen, no surprise fees, ever.',
+  },
+  {
+    icon: Lock,
+    title: 'Secure Payments',
+    desc: 'PCI-grade encryption and instant refunds keep your money protected.',
+  },
+  {
+    icon: Star,
+    title: 'Best Price Guarantee',
+    desc: 'See a lower price elsewhere? We match it and credit the difference.',
+  },
+];
+
+interface Testimonial {
+  id: string;
+  name: string;
+  avatar_url: string;
+  location: string;
+  rating: number;
+  quote: string;
+}
+
+const FALLBACK_TESTIMONIALS: Testimonial[] = [
+  {
+    id: 'f1',
+    name: 'Aarav Mehta',
+    avatar_url: 'https://i.pravatar.cc/120?img=12',
+    location: 'New Delhi',
+    rating: 5,
+    quote:
+      'Booked a verified apartment in Saket and the experience was flawless. Zero hidden fees and the host was incredible.',
+  },
+  {
+    id: 'f2',
+    name: 'Priya Sharma',
+    avatar_url: 'https://i.pravatar.cc/120?img=47',
+    location: 'Mumbai',
+    rating: 5,
+    quote:
+      'XpressBnB feels premium without the premium price tag. The verification badge gave me real peace of mind.',
+  },
+  {
+    id: 'f3',
+    name: 'Rohan Iyer',
+    avatar_url: 'https://i.pravatar.cc/120?img=33',
+    location: 'Bengaluru',
+    rating: 5,
+    quote:
+      'Used it for a 2-week corporate stay in Gurgaon. Direct-with-host model saved me almost 18% versus other platforms.',
+  },
+  {
+    id: 'f4',
+    name: 'Sanya Kapoor',
+    avatar_url: 'https://i.pravatar.cc/120?img=5',
+    location: 'Pune',
+    rating: 5,
+    quote:
+      'The skyline penthouse in Noida was a dream. Booking felt as good as the stay itself.',
+  },
+];
 
 export default function NewHomepage() {
+  const [properties, setProperties] = useState<Property[]>([]);
   const [propertiesByCity, setPropertiesByCity] = useState<Record<string, Property[]>>({});
   const [loading, setLoading] = useState(true);
-  const [activeCity, setActiveCity] = useState<string>('Delhi');
-  const [heroIndex, setHeroIndex] = useState(0);
-  const scrollRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const [scrolled, setScrolled] = useState(false);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>(FALLBACK_TESTIMONIALS);
 
   useEffect(() => {
-    loadPropertiesByCity();
+    loadProperties();
+    loadTestimonials();
   }, []);
 
   useEffect(() => {
-    const t = setInterval(() => {
-      setHeroIndex(i => (i + 1) % HERO_SLIDES.length);
-    }, 4000);
-    return () => clearInterval(t);
+    const onScroll = () => setScrolled(window.scrollY > 80);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  const loadPropertiesByCity = async () => {
+  const loadProperties = async () => {
     try {
       const { data, error } = await supabase
         .from('properties')
@@ -73,26 +160,38 @@ export default function NewHomepage() {
 
       if (error) throw error;
 
-      const groupedByCity: Record<string, Property[]> = {};
-      CITIES.forEach(city => {
-        groupedByCity[city] = (data || []).filter(p => p.city === city);
+      setProperties(data || []);
+      const grouped: Record<string, Property[]> = {};
+      CITIES.forEach(c => {
+        grouped[c] = (data || []).filter(p => p.city === c);
       });
-
-      setPropertiesByCity(groupedByCity);
-    } catch (error) {
-      console.error('Error loading properties:', error);
+      setPropertiesByCity(grouped);
+    } catch (err) {
+      console.error('Error loading properties:', err);
     } finally {
       setLoading(false);
     }
   };
 
-  const scrollToListings = () => {
-    const el = document.getElementById('listings');
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    } else {
-      window.scrollTo({ top: 600, behavior: 'smooth' });
+  const loadTestimonials = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('homepage_testimonials')
+        .select('id, name, avatar_url, location, rating, quote')
+        .eq('is_active', true)
+        .order('display_order', { ascending: true });
+      if (error) throw error;
+      if (data && data.length > 0) {
+        setTestimonials(data as Testimonial[]);
+      }
+    } catch (err) {
+      console.error('Error loading testimonials:', err);
     }
+  };
+
+  const scrollTo = (id: string) => {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   const handleHostLogin = () => {
@@ -100,586 +199,575 @@ export default function NewHomepage() {
     window.dispatchEvent(new PopStateEvent('popstate'));
   };
 
-  const handleCityClick = (city: string) => {
-    const citySlug = city.toLowerCase().replace(/\s+/g, '-');
-    window.history.pushState({}, '', `/stays/${citySlug}`);
+  const handleSignUp = () => {
+    window.history.pushState({}, '', '/auth/register');
     window.dispatchEvent(new PopStateEvent('popstate'));
   };
 
-  const handleCityPillClick = (city: string) => {
-    setActiveCity(city);
-    handleCityClick(city);
+  const handleLogin = () => {
+    window.history.pushState({}, '', '/auth/login');
+    window.dispatchEvent(new PopStateEvent('popstate'));
   };
 
+  const handleCityClick = (city: string) => {
+    const slug = city.toLowerCase().replace(/\s+/g, '-');
+    window.history.pushState({}, '', `/stays/${slug}`);
+    window.dispatchEvent(new PopStateEvent('popstate'));
+  };
+
+  const featuredProperties = properties.slice(0, 8);
+
+  const navTextClass = scrolled ? 'text-gray-900' : 'text-white';
+  const navHoverClass = scrolled ? 'hover:bg-gray-100' : 'hover:bg-white/10';
+
   return (
-    <div
-      className="min-h-screen bg-gray-50"
-      style={{ WebkitOverflowScrolling: 'touch', overscrollBehaviorY: 'contain' } as React.CSSProperties}
-    >
+    <div className="min-h-screen bg-white text-gray-900">
       <SEOHead
         config={{
           title: 'XpressBnB - Verified Stays in Delhi NCR | No Commission, Best Price Guaranteed',
-          description: 'Book verified homes and apartments directly from hosts. Couple-friendly stays in Delhi, Gurgaon, Noida at lowest prices. No brokerage, pay at property.',
-          keywords: 'couple friendly stays delhi, verified properties noida, no brokerage apartments, hourly stay delhi, best price accommodation gurgaon',
+          description:
+            'Book verified homes and apartments directly from hosts. Premium stays in Delhi, Gurgaon, Noida and Rishikesh. No brokerage, zero commission.',
+          keywords:
+            'verified stays delhi, no brokerage apartments, premium stays noida, gurgaon serviced apartments, rishikesh retreats',
           canonical: 'https://xpressbnb.com',
           structuredData: generateOrganizationStructuredData(),
         }}
       />
 
-      {/* Sticky Navbar */}
+      {/* Navbar */}
       <header
-        className="sticky top-0 z-50 bg-white"
-        style={{ borderBottom: '1px solid rgba(0,0,0,0.08)' }}
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+          scrolled
+            ? 'bg-white/90 backdrop-blur-md border-b border-gray-200 shadow-sm'
+            : 'bg-transparent border-b border-white/10'
+        }`}
       >
-        <div className="max-w-7xl mx-auto px-4 md:px-10 flex items-center justify-between h-[60px] md:h-[72px]">
-          {/* Logo */}
-          <div className="flex items-center gap-2">
-            <img src="/90d3767f-65eb-431d-8005-c9f9bb5f2fde.png" alt="XpressBnB" className="h-8 md:h-9 w-8 md:w-9 object-contain" />
-            <span className="text-lg md:text-xl font-extrabold text-gray-900 tracking-tight">
+        <div className="max-w-7xl mx-auto px-4 md:px-8 h-16 md:h-[72px] flex items-center justify-between">
+          <button
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            className="flex items-center gap-2"
+          >
+            <img
+              src="/90d3767f-65eb-431d-8005-c9f9bb5f2fde.png"
+              alt="XpressBnB"
+              className="h-9 w-9 object-contain"
+            />
+            <span className={`text-lg md:text-xl font-extrabold tracking-tight ${navTextClass}`}>
               Xpress<span className="text-[#ff385c]">BnB</span>
             </span>
-          </div>
+          </button>
 
-          {/* Center nav (desktop only) */}
-          <nav className="hidden md:flex items-center gap-1">
-            <button className="px-5 py-2 rounded-full text-sm font-semibold text-gray-900 hover:bg-gray-50 transition-colors">
-              Homes
-            </button>
-            <button
-              disabled
-              className="px-5 py-2 rounded-full text-sm font-semibold text-gray-400 cursor-default"
-            >
-              Experiences
-            </button>
-            <button
-              disabled
-              className="px-5 py-2 rounded-full text-sm font-semibold text-gray-400 cursor-default"
-            >
-              Services
-            </button>
+          <nav className="hidden lg:flex items-center gap-1">
+            {NAV_LINKS.map(link => (
+              <button
+                key={link.label}
+                onClick={() => scrollTo(link.target)}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${navTextClass} ${navHoverClass}`}
+              >
+                {link.label}
+              </button>
+            ))}
           </nav>
 
-          {/* Host login */}
-          <button
-            onClick={handleHostLogin}
-            className="bg-[#ff385c] text-white rounded-full px-5 md:px-6 py-2 md:py-2.5 font-semibold text-sm hover:bg-[#e8314f] transition-colors shadow-sm"
-          >
-            Host Login
-          </button>
+          <div className="flex items-center gap-1 md:gap-2">
+            <button
+              className={`hidden md:flex items-center gap-1 px-3 py-2 rounded-full text-sm font-medium transition-colors ${navTextClass} ${navHoverClass}`}
+            >
+              INR
+              <ChevronRight className="w-3.5 h-3.5 rotate-90" />
+            </button>
+            <button
+              className={`hidden md:flex w-9 h-9 items-center justify-center rounded-full transition-colors ${navTextClass} ${navHoverClass}`}
+              aria-label="Language"
+            >
+              <Globe className="w-4 h-4" />
+            </button>
+            <button
+              onClick={handleLogin}
+              className={`hidden md:inline-flex px-3 py-2 rounded-full text-sm font-medium transition-colors ${navTextClass} ${navHoverClass}`}
+            >
+              Log in
+            </button>
+            <button
+              onClick={handleSignUp}
+              className="bg-gray-900 text-white rounded-full px-5 py-2 md:py-2.5 text-sm font-semibold hover:bg-black hover:scale-[1.02] transition-all shadow-sm"
+            >
+              Sign up
+            </button>
+          </div>
         </div>
       </header>
 
-      {/* Hero Section */}
-      <style>{`
-        @keyframes fadeSlideUp {
-          from { opacity: 0; transform: translateY(12px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
-
-      {/* Hero container: 62vw on mobile (min 340px), desktop keeps clamp */}
-      <div
+      {/* Hero */}
+      <section
         className="relative w-full overflow-hidden"
-        style={{ height: 'clamp(340px, 62vw, 420px)' }}
+        style={{ minHeight: 'min(88vh, 820px)' }}
       >
-        {/* On desktop override to taller range via a separate style — desktop class keeps old feel */}
-        <style>{`
-          @media (min-width: 768px) {
-            .hero-container { height: clamp(260px, 42vw, 360px) !important; }
-          }
-        `}</style>
-
-        {/* Background images — stacked, crossfade */}
-        {HERO_SLIDES.map((slide, i) => (
-          <div
-            key={i}
-            className="absolute inset-0 bg-cover bg-center hero-container"
-            style={{
-              backgroundImage: `url(${slide.image})`,
-              opacity: i === heroIndex ? 1 : 0,
-              transition: 'opacity 1.2s ease-in-out',
-              zIndex: 0,
-              height: '100%',
-            }}
-          />
-        ))}
-
-        {/* Gradient overlay */}
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: `url(${HERO_IMAGE})` }}
+        />
         <div
           className="absolute inset-0"
           style={{
             background:
-              'linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.45) 50%, rgba(0,0,0,0.75) 100%)',
-            zIndex: 1,
+              'linear-gradient(100deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.45) 45%, rgba(0,0,0,0.15) 100%)',
           }}
         />
-
-
-        {/* Main hero content — centered */}
+        <ShaderBackground intensity={0.7} />
         <div
-          className="relative flex flex-col items-center justify-end h-full pb-10 md:pb-16 px-4 text-center"
-          style={{ zIndex: 2 }}
-        >
-          {/* Headline: 28px mobile, clamp on desktop */}
-          <h1
-            className="text-center text-white"
-            style={{
-              fontSize: 'clamp(28px, 5.5vw, 56px)',
-              fontWeight: 800,
-              letterSpacing: '-0.5px',
-              textShadow: '0 2px 20px rgba(0,0,0,0.4)',
-              lineHeight: 1.15,
-            }}
-          >
-            India's Smarter Stay
-          </h1>
+          className="absolute inset-x-0 bottom-0 h-32"
+          style={{ background: 'linear-gradient(to bottom, transparent, white)' }}
+        />
 
-          {/* Subtext */}
-          <p
-            className="text-center"
-            style={{
-              marginTop: '6px',
-              fontSize: 'clamp(13px, 1.4vw, 18px)',
-              color: 'rgba(255,255,255,0.82)',
-              fontWeight: 400,
-              textShadow: '0 1px 8px rgba(0,0,0,0.35)',
-            }}
-          >
-            Verified stays, zero commission, better prices
-          </p>
-
-          {/* Search bar — mobile: two-line label style; desktop: single input */}
-          {/* Mobile search bar */}
-          <div
-            className="md:hidden mt-5 flex items-center bg-white"
-            style={{
-              width: 'calc(100% - 32px)',
-              height: '52px',
-              borderRadius: '50px',
-              boxShadow: '0 4px 20px rgba(0,0,0,0.25)',
-              padding: '0 8px 0 18px',
-            }}
-          >
-            <div
-              className="flex-1 flex flex-col justify-center cursor-pointer"
-              onClick={scrollToListings}
+        <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-8 pt-32 md:pt-40 pb-40 md:pb-48">
+          <div className="max-w-2xl">
+            <span className="inline-flex items-center gap-2 bg-white/95 backdrop-blur px-4 py-1.5 rounded-full text-[11px] font-bold tracking-[0.18em] text-gray-900 shadow-sm mb-6 md:mb-8">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#ff385c]" />
+              VERIFIED STAYS. TRUSTED HOSTS.
+            </span>
+            <h1
+              className="text-white font-extrabold leading-[1.05] tracking-tight"
+              style={{ fontSize: 'clamp(36px, 5.4vw, 64px)' }}
             >
-              <span style={{ fontSize: '14px', fontWeight: 700, color: '#111', lineHeight: 1.2 }}>
-                Where to?
-              </span>
-              <span style={{ fontSize: '11px', color: '#aaa', lineHeight: 1.2 }}>
-                Delhi NCR · Any stay
-              </span>
-            </div>
-            <button
-              onClick={scrollToListings}
-              aria-label="Search"
-              className="w-10 h-10 mr-1 bg-[#ff385c] hover:bg-[#e8314f] rounded-full flex items-center justify-center flex-shrink-0 transition-colors"
+              Find Your Verified
+              <br />
+              Home Away from Home
+            </h1>
+            <p
+              className="mt-5 text-white/85 leading-relaxed max-w-xl"
+              style={{ fontSize: 'clamp(15px, 1.3vw, 18px)' }}
             >
-              <Search className="w-4 h-4 text-white" />
-            </button>
-          </div>
-
-          {/* Desktop search bar */}
-          <div
-            className="hidden md:flex mt-8 items-center bg-white"
-            style={{
-              width: 'min(560px, calc(100% - 8px))',
-              height: '56px',
-              borderRadius: '40px',
-              boxShadow: '0 8px 28px rgba(0,0,0,0.25)',
-              padding: '6px 6px 6px 22px',
-            }}
-          >
-            <input
-              type="text"
-              placeholder="Luxury Search Here."
-              onClick={scrollToListings}
-              onFocus={scrollToListings}
-              className="flex-1 bg-transparent outline-none text-gray-900 placeholder:text-gray-400"
-              style={{ fontSize: '14px', fontWeight: 500 }}
-            />
-            <button
-              onClick={scrollToListings}
-              aria-label="Filters"
-              className="w-10 h-10 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors flex-shrink-0"
-            >
-              <SlidersHorizontal className="w-4 h-4" />
-            </button>
-            <button
-              onClick={scrollToListings}
-              aria-label="Search"
-              className="w-11 h-11 ml-1 rounded-xl bg-[#ff385c] hover:bg-[#e8314f] flex items-center justify-center flex-shrink-0 transition-colors"
-            >
-              <Search className="w-4 h-4 text-white" />
-            </button>
-          </div>
-        </div>
-
-        {/* Slide indicator dots */}
-        <div
-          style={{
-            position: 'absolute',
-            bottom: 16,
-            left: '50%',
-            transform: 'translateX(-50%)',
-            display: 'flex',
-            gap: 6,
-            zIndex: 10,
-          }}
-        >
-          {HERO_SLIDES.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setHeroIndex(i)}
-              aria-label={`Go to slide ${i + 1}`}
-              style={{
-                width: i === heroIndex ? 24 : 8,
-                height: 8,
-                borderRadius: 9999,
-                background: i === heroIndex ? '#ff385c' : 'rgba(255,255,255,0.5)',
-                border: 'none',
-                cursor: 'pointer',
-                padding: 0,
-                transition: 'all 0.3s ease',
-              }}
-            />
-          ))}
-        </div>
-      </div>
-
-      {/* City Quick Links */}
-      <div className="bg-white border-b" style={{ borderBottomColor: '#f0f0f0', marginTop: 0, paddingTop: '12px', paddingBottom: '12px', paddingLeft: '16px', paddingRight: '16px' }}>
-        <div
-          className="flex overflow-x-auto scrollbar-hide"
-          style={{ gap: '8px' }}
-        >
-          <div className="hidden md:block" style={{ width: '24px', flexShrink: 0 }} />
-          {CITIES.map(city => {
-            const isActive = activeCity === city;
-            return (
-              <button
-                key={city}
-                onClick={() => handleCityPillClick(city)}
-                className="flex-shrink-0 transition-all"
-                style={{
-                  padding: '8px 16px',
-                  fontSize: '13px',
-                  fontWeight: 600,
-                  borderRadius: '30px',
-                  border: `1px solid ${isActive ? '#111' : '#e0e0e0'}`,
-                  background: isActive ? '#111' : '#fff',
-                  color: isActive ? '#fff' : '#444',
-                  whiteSpace: 'nowrap',
-                  cursor: 'pointer',
-                }}
-              >
-                {city}
-              </button>
-            );
-          })}
-          <div className="hidden md:block" style={{ width: '24px', flexShrink: 0 }} />
-        </div>
-      </div>
-
-      {/* Main content */}
-      <div id="listings" className="max-w-7xl mx-auto scroll-mt-20" style={{ paddingBottom: '120px' }}>
-        {loading ? (
-          <div className="space-y-10 px-4 pt-8">
-            {[1, 2, 3].map(i => (
-              <div key={i} className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="h-7 w-44 bg-gray-200 rounded-xl animate-pulse" />
-                  <div className="h-8 w-24 bg-gray-200 rounded-full animate-pulse" />
-                </div>
-                {/* Mobile: 2-col grid skeleton */}
-                <div className="grid grid-cols-2 md:hidden gap-[10px] px-3">
-                  {[1, 2, 3, 4].map(j => (
-                    <div key={j} className="bg-white rounded-xl overflow-hidden shadow border border-gray-100">
-                      <div className="aspect-[4/3] bg-gray-200 animate-pulse" />
-                      <div className="p-3 space-y-2">
-                        <div className="h-3 w-3/4 bg-gray-200 rounded animate-pulse" />
-                        <div className="h-2.5 w-1/2 bg-gray-200 rounded animate-pulse" />
-                        <div className="h-4 w-1/3 bg-gray-200 rounded animate-pulse" />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                {/* Desktop: horizontal scroll skeleton */}
-                <div className="hidden md:flex gap-4 overflow-hidden">
-                  {[1, 2, 3].map(j => (
-                    <div key={j} className="flex-shrink-0 w-72">
-                      <div className="bg-white rounded-3xl overflow-hidden shadow border border-gray-100">
-                        <div className="h-52 bg-gray-200 animate-pulse" />
-                        <div className="p-4 space-y-3">
-                          <div className="h-4 w-3/4 bg-gray-200 rounded animate-pulse" />
-                          <div className="h-3 w-1/2 bg-gray-200 rounded animate-pulse" />
-                          <div className="h-5 w-1/3 bg-gray-200 rounded animate-pulse" />
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="space-y-10 pt-8">
-            {CITIES.map((city, index) => {
-              const properties = propertiesByCity[city] || [];
-              if (properties.length === 0) return null;
-              const meta = CITY_META[city];
-
-              return (
-                <section
-                  key={city}
-                  style={{ animationDelay: `${index * 80}ms`, animation: 'fadeInUp 0.5s ease-out both' }}
-                >
-                  {/* Section header — mobile redesign, desktop kept */}
-                  {/* Mobile header */}
-                  <div className="flex items-start justify-between px-4 mb-3 mt-2 md:hidden">
-                    <div>
-                      <h2 className="text-[19px] font-extrabold text-gray-900 leading-tight">
-                        Stays in {city}
-                      </h2>
-                      <p className="text-[12px] text-gray-400 mt-0.5">
-                        {properties.length} properties available
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => handleCityClick(city)}
-                      className="flex items-center gap-0.5 text-[13px] font-bold text-[#ff385c] whitespace-nowrap mt-1 shrink-0"
-                    >
-                      See all
-                      <ChevronRight className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-
-                  {/* Desktop header */}
-                  <div className="hidden md:flex items-end justify-between px-4 mb-4">
-                    <div>
-                      <div className="flex items-center gap-2 mb-0.5">
-                        <span className="text-xl">{meta?.emoji}</span>
-                        <h2 className="text-xl font-bold text-gray-900">
-                          Stays in {city}
-                        </h2>
-                      </div>
-                      <p className="text-sm text-gray-500 ml-8">
-                        {meta?.tagline} · <span className="font-medium text-gray-700">{properties.length} available</span>
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => handleCityClick(city)}
-                      className="flex items-center gap-1 text-sm font-semibold text-rose-600 hover:text-rose-700 group transition-colors"
-                    >
-                      See all
-                      <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-                    </button>
-                  </div>
-
-                  {/* Mobile: 2-column grid */}
-                  <div
-                    className="md:hidden grid px-3"
-                    style={{
-                      gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-                      columnGap: '10px',
-                      rowGap: '16px',
-                    }}
-                  >
-                    {properties.slice(0, 6).map(property => (
-                      <div
-                        key={property.id}
-                        className="overflow-hidden rounded-xl"
-                        style={{ borderRadius: '12px' }}
-                      >
-                        <ConversionPropertyCard property={property} />
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Desktop: horizontal scroll row */}
-                  <div
-                    ref={el => { scrollRefs.current[city] = el; }}
-                    className="hidden md:block overflow-x-auto scrollbar-hide"
-                    style={{ scrollSnapType: 'x mandatory' }}
-                  >
-                    <div className="flex gap-4 px-4 pb-2">
-                      {properties.slice(0, 10).map((property, idx) => (
-                        <div
-                          key={property.id}
-                          className="flex-shrink-0 w-72"
-                          style={{ scrollSnapAlign: 'start', animationDelay: `${idx * 40}ms` }}
-                        >
-                          <ConversionPropertyCard property={property} />
-                        </div>
-                      ))}
-
-                      {/* View all card */}
-                      {properties.length > 5 && (
-                        <div className="flex-shrink-0 w-52 flex items-center justify-center" style={{ scrollSnapAlign: 'start' }}>
-                          <button
-                            onClick={() => handleCityClick(city)}
-                            className="flex flex-col items-center gap-3 p-6 rounded-3xl border-2 border-dashed border-gray-200 hover:border-rose-300 hover:bg-rose-50 transition-all group w-full h-full min-h-[200px] justify-center"
-                          >
-                            <div className="w-12 h-12 bg-rose-100 rounded-full flex items-center justify-center group-hover:bg-rose-200 transition-colors">
-                              <ChevronRight className="w-6 h-6 text-rose-600" />
-                            </div>
-                            <div className="text-center">
-                              <div className="font-bold text-gray-900 text-sm">See all</div>
-                              <div className="text-xs text-gray-500">{properties.length} in {city}</div>
-                            </div>
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </section>
-              );
-            })}
-
-            {/* Why XpressBnB — visible on both, mobile-optimized layout */}
-            <section className="mx-4 mt-4 rounded-3xl overflow-hidden">
-              <div
-                className="bg-gray-900"
-                style={{ padding: 'clamp(32px, 5vw, 40px) clamp(20px, 4vw, 24px) clamp(32px, 5vw, 32px)' }}
-              >
-                <div className="text-center mb-6 md:mb-8">
-                  <span className="inline-block px-3 py-1 bg-rose-500/20 text-rose-300 text-xs font-bold rounded-full mb-3 uppercase tracking-wider">
-                    Why Choose Us
-                  </span>
-                  <h2
-                    className="font-bold text-white mb-2"
-                    style={{ fontSize: 'clamp(22px, 5vw, 28px)' }}
-                  >
-                    India's smartest way to book stays
-                  </h2>
-                  <p className="text-gray-400" style={{ fontSize: 'clamp(13px, 2vw, 14px)' }}>
-                    No middlemen. No hidden fees. Just great stays.
-                  </p>
-                </div>
-
-                {/* Mobile: stacked; Desktop: 3-col grid */}
-                <div className="flex flex-col gap-3 md:grid md:grid-cols-3 md:gap-4">
-                  {[
-                    {
-                      icon: Sparkles,
-                      title: '100% Verified',
-                      desc: 'Every property personally checked by our team before listing.',
-                      accent: 'text-amber-400',
-                      bg: 'bg-amber-400/10',
-                    },
-                    {
-                      icon: Zap,
-                      title: 'Zero Commission',
-                      desc: 'Book directly with the host. What you see is what you pay.',
-                      accent: 'text-green-400',
-                      bg: 'bg-green-400/10',
-                    },
-                    {
-                      icon: Shield,
-                      title: 'Pay at Property',
-                      desc: 'No advance payment stress. Pay when you arrive, leave happy.',
-                      accent: 'text-blue-400',
-                      bg: 'bg-blue-400/10',
-                    },
-                  ].map(({ icon: Icon, title, desc, accent, bg }) => (
-                    <div
-                      key={title}
-                      className="flex gap-4 hover:bg-white/10 transition-colors"
-                      style={{
-                        padding: '16px',
-                        borderRadius: '14px',
-                        background: 'rgba(255,255,255,0.05)',
-                        border: '1px solid rgba(255,255,255,0.08)',
-                      }}
-                    >
-                      <div className={`flex-shrink-0 w-10 h-10 ${bg} rounded-xl flex items-center justify-center`}>
-                        <Icon className={`w-5 h-5 ${accent}`} />
-                      </div>
-                      <div>
-                        <h3
-                          className="font-bold text-white mb-1"
-                          style={{ fontSize: '14px' }}
-                        >
-                          {title}
-                        </h3>
-                        <p
-                          className="leading-relaxed"
-                          style={{ fontSize: '12px', color: 'rgba(255,255,255,0.5)' }}
-                        >
-                          {desc}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </section>
-
-            {/* City Explore Grid */}
-            <section className="px-4 mt-4">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Explore destinations</h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {CITIES.map(city => {
-                  const count = propertiesByCity[city]?.length || 0;
-                  if (count === 0) return null;
-                  const meta = CITY_META[city];
-                  return (
-                    <button
-                      key={city}
-                      onClick={() => handleCityClick(city)}
-                      className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-4 text-left hover:border-rose-200 hover:shadow-md transition-all"
-                    >
-                      <div className="text-2xl mb-2">{meta?.emoji}</div>
-                      <div className="font-bold text-gray-900 text-sm">{city}</div>
-                      <div className="text-xs text-gray-500 mt-0.5">{count} properties</div>
-                      <ChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300 group-hover:text-rose-500 group-hover:translate-x-0.5 transition-all" />
-                    </button>
-                  );
-                })}
-              </div>
-            </section>
-          </div>
-        )}
-      </div>
-
-      {/* Footer */}
-      <footer className="bg-white border-t border-gray-100 pt-10 pb-8 px-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col items-center text-center mb-8">
-            <div className="flex items-center gap-2 mb-3">
-              <img src="/90d3767f-65eb-431d-8005-c9f9bb5f2fde.png" alt="XpressBnB" className="h-10 w-10 object-contain" />
-              <span className="text-xl font-extrabold text-gray-900 tracking-tight">
-                Xpress<span className="text-rose-600">BnB</span>
-              </span>
-            </div>
-            <p className="text-gray-500 text-sm max-w-xs leading-relaxed">
-              India's first zero-commission property booking platform. Direct. Simple. Smart.
+              Book premium stays directly from trusted hosts &mdash; zero commissions,
+              transparent pricing, and instant confirmations.
             </p>
           </div>
+        </div>
 
-          <div className="hidden md:flex flex-wrap justify-center gap-2 mb-8">
-            {['100% Verified', 'No Commission', 'Pay at Property', 'Couple Friendly', 'Instant Booking'].map(tag => (
-              <span key={tag} className="px-3 py-1.5 bg-gray-50 rounded-full text-xs font-semibold text-gray-600 border border-gray-200">
-                {tag}
-              </span>
+        {/* Glassmorphic Search Bar */}
+        <div className="absolute left-0 right-0 z-20" style={{ bottom: '8%' }}>
+          <div className="max-w-7xl mx-auto px-4 md:px-8">
+            <SearchBar onSearch={() => scrollTo('listings')} />
+          </div>
+        </div>
+      </section>
+
+      {/* Trust Bar */}
+      <section className="bg-white border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 md:px-8 py-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-4">
+            {TRUST_ITEMS.map(item => (
+              <div key={item.title} className="flex items-center gap-3">
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center ${item.tint}`}>
+                  <item.icon className="w-5 h-5" />
+                </div>
+                <div className="min-w-0">
+                  <div className="text-sm md:text-[15px] font-bold text-gray-900 leading-tight">
+                    {item.title}
+                  </div>
+                  <div className="text-xs md:text-[13px] text-gray-500 leading-tight mt-0.5">
+                    {item.sub}
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
+        </div>
+      </section>
 
-          <div className="flex flex-wrap justify-center gap-6 mb-6 text-sm text-gray-500">
-            <button className="hover:text-gray-900 transition-colors">About</button>
-            <button className="hover:text-gray-900 transition-colors">List your property</button>
-            <button className="hover:text-gray-900 transition-colors">Privacy</button>
-            <button className="hover:text-gray-900 transition-colors">Terms</button>
-            <button className="hover:text-gray-900 transition-colors">Contact</button>
+      {/* Featured Stays */}
+      <section id="listings" className="bg-white scroll-mt-24">
+        <div className="max-w-7xl mx-auto px-4 md:px-8 pt-12 md:pt-16 pb-10">
+          <div className="flex items-end justify-between gap-4 mb-6 md:mb-8">
+            <div>
+              <h2 className="text-2xl md:text-[32px] font-extrabold text-gray-900 tracking-tight leading-tight">
+                Featured Stays
+              </h2>
+              <p className="text-sm md:text-base text-gray-500 mt-1">
+                Handpicked premium stays by our community
+              </p>
+            </div>
+            <button
+              onClick={() => handleCityClick('Delhi')}
+              className="flex items-center gap-1 text-sm font-semibold text-gray-900 hover:text-[#ff385c] transition-colors group"
+            >
+              View all
+              <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+            </button>
           </div>
 
-          <div className="text-center border-t border-gray-100 pt-6">
-            <p className="text-gray-400 text-xs mb-1">© 2025 XpressBnB. All rights reserved.</p>
-            <p className="text-rose-500 text-sm font-bold">India's Smarter Stay</p>
+          {loading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {[1, 2, 3, 4].map(i => (
+                <div key={i} className="rounded-2xl overflow-hidden border border-gray-100">
+                  <div className="aspect-[4/3] bg-gray-100 animate-pulse" />
+                  <div className="p-4 space-y-2">
+                    <div className="h-4 w-3/4 bg-gray-100 rounded animate-pulse" />
+                    <div className="h-3 w-1/2 bg-gray-100 rounded animate-pulse" />
+                    <div className="h-4 w-1/3 bg-gray-100 rounded animate-pulse" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : featuredProperties.length === 0 ? (
+            <div className="py-12 text-center text-gray-500 text-sm">
+              No properties available right now.
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {featuredProperties.map(p => (
+                <FeaturedCard key={p.id} property={p} />
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Explore by city */}
+      <section className="bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 md:px-8 py-14">
+          <div className="flex items-end justify-between mb-6">
+            <div>
+              <h2 className="text-2xl md:text-[28px] font-extrabold text-gray-900 tracking-tight">
+                Explore destinations
+              </h2>
+              <p className="text-sm text-gray-500 mt-1">
+                Verified homes across India&rsquo;s top destinations
+              </p>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            {CITIES.map(city => {
+              const count = propertiesByCity[city]?.length || 0;
+              const cover = propertiesByCity[city]?.[0]?.images?.[0];
+              return (
+                <button
+                  key={city}
+                  onClick={() => handleCityClick(city)}
+                  className="group relative aspect-[4/5] rounded-2xl overflow-hidden border border-gray-200 bg-white hover:shadow-xl transition-all"
+                >
+                  {cover ? (
+                    <img
+                      src={cover}
+                      alt={city}
+                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200" />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+                  <div className="absolute left-3 right-3 bottom-3 text-left text-white">
+                    <div className="font-bold text-base leading-tight">{city}</div>
+                    <div className="text-[12px] text-white/80 mt-0.5">{count} stays</div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Why XpressBnB */}
+      <section id="why" className="bg-white scroll-mt-24">
+        <div className="max-w-7xl mx-auto px-4 md:px-8 py-16 md:py-20">
+          <div className="max-w-2xl mb-10 md:mb-14">
+            <span className="text-xs font-bold tracking-[0.18em] text-[#ff385c]">WHY XPRESSBNB</span>
+            <h2 className="mt-3 text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight leading-tight">
+              The premium way to book stays in India.
+            </h2>
+            <p className="mt-3 text-gray-500 text-base md:text-lg leading-relaxed">
+              Direct relationships with hosts, transparent pricing, and verified properties &mdash;
+              all in one beautifully simple booking experience.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+            {FEATURE_CARDS.map(card => (
+              <div
+                key={card.title}
+                className="group rounded-2xl border border-gray-200 bg-white p-6 hover:shadow-lg hover:-translate-y-0.5 hover:border-gray-300 transition-all"
+              >
+                <div className="w-12 h-12 rounded-xl bg-gray-900 text-white flex items-center justify-center group-hover:bg-[#ff385c] transition-colors">
+                  <card.icon className="w-5 h-5" />
+                </div>
+                <h3 className="mt-5 font-bold text-gray-900 text-lg">{card.title}</h3>
+                <p className="mt-2 text-sm text-gray-500 leading-relaxed">{card.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section className="bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 md:px-8 py-16 md:py-20">
+          <div className="flex items-end justify-between gap-4 mb-8">
+            <div>
+              <span className="text-xs font-bold tracking-[0.18em] text-[#ff385c]">REVIEWS</span>
+              <h2 className="mt-3 text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight">
+                Loved by travelers across India
+              </h2>
+            </div>
+          </div>
+          <div className="flex gap-5 overflow-x-auto scrollbar-hide pb-2 snap-x snap-mandatory md:grid md:grid-cols-3 md:gap-6 md:overflow-visible">
+            {testimonials.slice(0, 6).map(t => (
+              <article
+                key={t.id}
+                className="snap-start shrink-0 w-[85%] sm:w-[55%] md:w-auto bg-white rounded-2xl border border-gray-200 p-6 shadow-sm hover:shadow-lg transition-shadow"
+              >
+                <div className="flex items-center gap-3">
+                  <img
+                    src={t.avatar_url}
+                    alt={t.name}
+                    className="w-12 h-12 rounded-full object-cover"
+                    loading="lazy"
+                  />
+                  <div>
+                    <div className="font-bold text-gray-900 leading-tight">{t.name}</div>
+                    <div className="text-xs text-gray-500 mt-0.5">{t.location}</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-0.5 mt-4">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star
+                      key={i}
+                      className={`w-4 h-4 ${i < t.rating ? 'text-amber-400' : 'text-gray-200'}`}
+                      fill={i < t.rating ? '#fbbf24' : 'transparent'}
+                    />
+                  ))}
+                </div>
+                <p className="mt-4 text-gray-700 text-[15px] leading-relaxed">&ldquo;{t.quote}&rdquo;</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Final CTA */}
+      <section id="host" className="relative bg-gray-900 overflow-hidden">
+        <ShaderBackground intensity={0.55} />
+        <div className="absolute inset-0 bg-gradient-to-b from-gray-900/70 via-gray-900/80 to-gray-900" />
+        <div className="relative z-10 max-w-4xl mx-auto px-4 md:px-8 py-20 md:py-28 text-center">
+          <h2 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight leading-[1.1]">
+            Your next stay is one click away.
+          </h2>
+          <p className="mt-4 text-white/75 text-base md:text-lg max-w-2xl mx-auto">
+            Discover verified homes from trusted hosts, all without commissions or hidden fees.
+          </p>
+          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <button
+              onClick={() => scrollTo('listings')}
+              className="inline-flex items-center gap-2 bg-white text-gray-900 rounded-full px-7 py-3.5 font-bold text-sm hover:scale-[1.03] hover:shadow-2xl transition-all"
+            >
+              Find Your Stay
+              <ArrowRight className="w-4 h-4" />
+            </button>
+            <button
+              onClick={handleHostLogin}
+              className="inline-flex items-center gap-2 bg-white/10 backdrop-blur text-white rounded-full px-7 py-3.5 font-semibold text-sm border border-white/25 hover:bg-white/20 transition-all"
+            >
+              Become a Host
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-white border-t border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 md:px-8 py-14">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mb-10">
+            <div className="col-span-2 md:col-span-1">
+              <div className="flex items-center gap-2">
+                <img
+                  src="/90d3767f-65eb-431d-8005-c9f9bb5f2fde.png"
+                  alt="XpressBnB"
+                  className="h-9 w-9 object-contain"
+                />
+                <span className="text-lg font-extrabold tracking-tight">
+                  Xpress<span className="text-[#ff385c]">BnB</span>
+                </span>
+              </div>
+              <p className="mt-4 text-sm text-gray-500 leading-relaxed max-w-xs">
+                India&rsquo;s first zero-commission booking platform. Direct, verified, and beautifully simple.
+              </p>
+            </div>
+            <FooterCol
+              title="Explore"
+              items={CITIES.map(c => ({ label: c, onClick: () => handleCityClick(c) }))}
+            />
+            <FooterCol
+              title="Company"
+              items={[
+                { label: 'About', onClick: () => scrollTo('why') },
+                { label: 'Become a Host', onClick: handleHostLogin },
+                { label: 'Help Center', onClick: () => scrollTo('why') },
+              ]}
+            />
+            <FooterCol
+              title="Legal"
+              items={[
+                { label: 'Privacy', onClick: () => {} },
+                { label: 'Terms', onClick: () => {} },
+                { label: 'Contact', onClick: () => {} },
+              ]}
+            />
+          </div>
+          <div className="pt-8 border-t border-gray-100 flex flex-col md:flex-row items-center justify-between gap-3">
+            <p className="text-xs text-gray-400">© 2026 XpressBnB. All rights reserved.</p>
+            <p className="text-xs text-gray-500 font-semibold">India&rsquo;s Smarter Stay</p>
           </div>
         </div>
       </footer>
+    </div>
+  );
+}
+
+function SearchBar({ onSearch }: { onSearch: () => void }) {
+  return (
+    <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-white/40 ring-1 ring-black/5 p-2 md:p-2.5">
+      <div className="flex flex-col md:flex-row md:items-center">
+        <SearchField
+          icon={<MapPin className="w-5 h-5 text-gray-700" />}
+          label="Where to?"
+          hint="Search city, area or property"
+        />
+        <Divider />
+        <SearchField
+          icon={<Calendar className="w-5 h-5 text-gray-700" />}
+          label="Check-in"
+          hint="Add dates"
+        />
+        <Divider />
+        <SearchField
+          icon={<Calendar className="w-5 h-5 text-gray-700" />}
+          label="Check-out"
+          hint="Add dates"
+        />
+        <Divider />
+        <SearchField
+          icon={<Users className="w-5 h-5 text-gray-700" />}
+          label="Guests"
+          hint="Add guests"
+        />
+        <button
+          onClick={onSearch}
+          className="mt-2 md:mt-0 md:ml-2 inline-flex items-center justify-center gap-2 bg-gray-900 hover:bg-black text-white font-semibold text-sm rounded-xl px-6 py-3.5 md:py-4 transition-all hover:scale-[1.02] shadow-lg shadow-gray-900/20"
+        >
+          <Search className="w-4 h-4" />
+          Search Stays
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function SearchField({
+  icon,
+  label,
+  hint,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  hint: string;
+}) {
+  return (
+    <button className="flex-1 flex items-center gap-3 px-4 md:px-5 py-3 md:py-3 rounded-xl text-left hover:bg-gray-50 transition-colors min-w-0">
+      <span className="shrink-0">{icon}</span>
+      <span className="min-w-0 flex flex-col leading-tight">
+        <span className="text-[13px] font-bold text-gray-900">{label}</span>
+        <span className="text-[12px] text-gray-500 truncate">{hint}</span>
+      </span>
+    </button>
+  );
+}
+
+function Divider() {
+  return <span className="hidden md:block w-px h-8 bg-gray-200" />;
+}
+
+function FeaturedCard({ property }: { property: Property }) {
+  const handleClick = () => {
+    window.history.pushState({}, '', `/property/${property.id}`);
+    window.dispatchEvent(new PopStateEvent('popstate'));
+  };
+  const price = (property.price_per_day || property.price_full_day || 0).toLocaleString();
+  const reviews = Math.max(40, Math.round((property.rating || 4.8) * 25));
+  return (
+    <article
+      onClick={handleClick}
+      className="group cursor-pointer rounded-2xl overflow-hidden bg-white border border-gray-100 hover:shadow-xl hover:border-gray-200 hover:-translate-y-0.5 transition-all duration-300"
+    >
+      <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
+        {property.images?.[0] ? (
+          <img
+            src={property.images[0]}
+            alt={property.title}
+            loading="lazy"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm">
+            No image
+          </div>
+        )}
+        <button
+          onClick={e => e.stopPropagation()}
+          aria-label="Save"
+          className="absolute top-3 right-3 w-9 h-9 bg-white/95 backdrop-blur rounded-full flex items-center justify-center shadow hover:scale-110 transition-transform"
+        >
+          <Heart className="w-4 h-4 text-gray-700" />
+        </button>
+        {property.is_verified && (
+          <div className="absolute bottom-3 left-3 inline-flex items-center gap-1 bg-white rounded-full pl-1.5 pr-2.5 py-1 shadow">
+            <span className="w-4 h-4 rounded-full bg-emerald-500 flex items-center justify-center">
+              <CheckCircle className="w-3 h-3 text-white" />
+            </span>
+            <span className="text-[11px] font-bold text-gray-900">Verified</span>
+          </div>
+        )}
+      </div>
+      <div className="p-4">
+        <h3 className="font-bold text-[15px] text-gray-900 leading-tight line-clamp-1">
+          {property.title}
+        </h3>
+        <p className="text-[13px] text-gray-500 mt-0.5 line-clamp-1">{property.city}</p>
+        <div className="flex items-center justify-between mt-3">
+          <div className="flex items-center gap-1 text-[13px]">
+            <Star className="w-3.5 h-3.5 text-amber-400" fill="#fbbf24" />
+            <span className="font-bold text-gray-900">{property.rating?.toFixed(1) || '4.8'}</span>
+            <span className="text-gray-400">({reviews})</span>
+          </div>
+          <div className="text-right">
+            <span className="text-[15px] font-bold text-gray-900">&#8377;{price}</span>
+            <span className="text-[12px] text-gray-500"> /night</span>
+          </div>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function FooterCol({
+  title,
+  items,
+}: {
+  title: string;
+  items: { label: string; onClick: () => void }[];
+}) {
+  return (
+    <div>
+      <h4 className="font-bold text-gray-900 text-sm mb-4">{title}</h4>
+      <ul className="space-y-2.5">
+        {items.map(item => (
+          <li key={item.label}>
+            <button
+              onClick={item.onClick}
+              className="text-sm text-gray-500 hover:text-gray-900 transition-colors"
+            >
+              {item.label}
+            </button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
