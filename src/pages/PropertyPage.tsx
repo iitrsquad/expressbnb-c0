@@ -32,15 +32,15 @@ const PropertyPage: React.FC = () => {
   // Sample list of images; update these values to your real property images.
   const images: Image[] = [
     {
-      src: "/images/sample-property-main.jpg",
+      src: "/hf_20260421_035555_1a21c02f-f8a3-493b-a91f-a38b0d35d0e8.png",
       alt: "Primary view of the property",
     },
     {
-      src: "/images/sample-property-side1.jpg",
+      src: "/hf_20260421_035601_66b783e2-f00b-4935-a8ab-9a018055df45.png",
       alt: "Secondary view of the property",
     },
     {
-      src: "/images/sample-property-side2.jpg",
+      src: "/hf_20260421_035615_b04f7bfa-fec6-4a1b-998c-f50871270636.png",
       alt: "Another angle of the property",
     },
   ];
@@ -265,7 +265,7 @@ const PropertyPage: React.FC = () => {
               <h2 className="text-xl font-semibold mb-3">Hosted by Neha</h2>
               <div className="flex items-center mb-4">
                 <img
-                  src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=80&q=80"
+                  src="https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=80&h=80&dpr=1"
                   alt="Host avatar"
                   className="w-12 h-12 rounded-full object-cover mr-3"
                 />
