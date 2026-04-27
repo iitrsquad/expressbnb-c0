@@ -304,7 +304,7 @@ export default function NewHomepage() {
         />
 
         <div className="relative z-10 h-full flex flex-col justify-center px-4 md:px-8 max-w-7xl mx-auto pt-20 pb-4">
-          <div className="flex-1 flex flex-col justify-center">
+          <div className="flex-1 flex flex-col justify-center md:justify-center">
             <div className="max-w-xl">
               <h1
                 className="text-white font-extrabold leading-[1.08] tracking-tight"
@@ -334,11 +334,11 @@ export default function NewHomepage() {
                 </button>
               ))}
             </div>
-          </div>
 
-          {/* Search Bar inline at the bottom of the hero flex */}
-          <div className="w-full max-w-3xl mt-6 mb-4 md:mb-8">
-            <HeroSearchBar onSearch={() => scrollTo('listings')} />
+            {/* Search Bar - placed right after city pills so it stays visible on mobile */}
+            <div className="w-full max-w-3xl mt-6">
+              <HeroSearchBar onSearch={() => scrollTo('listings')} />
+            </div>
           </div>
         </div>
       </section>
