@@ -230,7 +230,7 @@ export default function NewHomepage() {
             className="flex items-center gap-2"
           >
             <img
-              src="/90d3767f-65eb-431d-8005-c9f9bb5f2fde.png"
+              src="/image.png"
               alt="XpressBnB"
               className="h-9 w-9 object-contain"
             />
@@ -623,7 +623,7 @@ export default function NewHomepage() {
             <div className="col-span-2 md:col-span-1">
               <div className="flex items-center gap-2">
                 <img
-                  src="/90d3767f-65eb-431d-8005-c9f9bb5f2fde.png"
+                  src="/image.png"
                   alt="XpressBnB"
                   className="h-9 w-9 object-contain"
                 />

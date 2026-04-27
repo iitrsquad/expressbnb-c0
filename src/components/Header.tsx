@@ -23,7 +23,7 @@ export default function Header({ onAboutClick, onBlogClick, onHostLoginClick }: 
       <div className="max-w-7xl mx-auto px-4 md:px-10 flex items-center justify-between h-[60px] md:h-[72px]">
         <button onClick={goHome} className="flex items-center gap-2">
           <img
-            src="/90d3767f-65eb-431d-8005-c9f9bb5f2fde.png"
+            src="/image.png"
             alt="XpressBnB"
             className="h-8 md:h-9 w-8 md:w-9 object-contain"
           />
