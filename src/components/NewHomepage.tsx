@@ -274,7 +274,7 @@ export default function NewHomepage() {
       </header>
 
       {/* ──── Hero ──── */}
-      <section className="relative w-full overflow-hidden" style={{ height: '100svh', minHeight: 600 }}>
+      <section className="relative w-full overflow-hidden" style={{ height: '100svh', minHeight: 580 }}>
         {HERO_SLIDES.map((slide, i) => (
           <div
             key={slide.city}
@@ -303,41 +303,41 @@ export default function NewHomepage() {
           }}
         />
 
-        <div className="relative z-10 h-full flex flex-col justify-end pb-48 md:pb-56 px-4 md:px-8 max-w-7xl mx-auto">
-          <div className="max-w-xl">
-            <h1
-              className="text-white font-extrabold leading-[1.08] tracking-tight"
-              style={{ fontSize: 'clamp(28px, 5vw, 52px)' }}
-            >
-              Find Your Verified Stay
-            </h1>
-            <p className="mt-3 text-base md:text-lg font-medium" style={{ color: WARM }}>
-              Zero commission. Trusted hosts.
-            </p>
-          </div>
-
-          <div className="mt-5 flex items-center gap-2">
-            {HERO_SLIDES.map((s, i) => (
-              <button
-                key={s.city}
-                onClick={() => setHeroIndex(i)}
-                className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-all"
-                style={{
-                  background: i === heroIndex ? 'rgba(244,162,97,0.2)' : 'rgba(255,255,255,0.08)',
-                  color: i === heroIndex ? WARM : 'rgba(255,255,255,0.5)',
-                  border: i === heroIndex ? `1px solid ${WARM}` : '1px solid transparent',
-                }}
+        <div className="relative z-10 h-full flex flex-col justify-center px-4 md:px-8 max-w-7xl mx-auto pt-20 pb-4">
+          <div className="flex-1 flex flex-col justify-center">
+            <div className="max-w-xl">
+              <h1
+                className="text-white font-extrabold leading-[1.08] tracking-tight"
+                style={{ fontSize: 'clamp(28px, 5vw, 52px)' }}
               >
-                <MapPin className="w-3 h-3" />
-                {s.city}
-              </button>
-            ))}
-          </div>
-        </div>
+                Find Your Verified Stay
+              </h1>
+              <p className="mt-3 text-base md:text-lg font-medium" style={{ color: WARM }}>
+                Zero commission. Trusted hosts.
+              </p>
+            </div>
 
-        {/* Floating Search Bar */}
-        <div className="absolute left-0 right-0 z-20" style={{ bottom: 'max(6%, 32px)' }}>
-          <div className="max-w-3xl mx-auto px-4 md:px-8">
+            <div className="mt-5 flex flex-wrap items-center gap-2">
+              {HERO_SLIDES.map((s, i) => (
+                <button
+                  key={s.city}
+                  onClick={() => setHeroIndex(i)}
+                  className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-all"
+                  style={{
+                    background: i === heroIndex ? 'rgba(244,162,97,0.2)' : 'rgba(255,255,255,0.08)',
+                    color: i === heroIndex ? WARM : 'rgba(255,255,255,0.5)',
+                    border: i === heroIndex ? `1px solid ${WARM}` : '1px solid transparent',
+                  }}
+                >
+                  <MapPin className="w-3 h-3" />
+                  {s.city}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Search Bar inline at the bottom of the hero flex */}
+          <div className="w-full max-w-3xl mt-6 mb-4 md:mb-8">
             <HeroSearchBar onSearch={() => scrollTo('listings')} />
           </div>
         </div>
