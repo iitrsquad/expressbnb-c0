@@ -682,54 +682,80 @@ export default function NewHomepage() {
 
 function HeroSearchBar({ onSearch }: { onSearch: () => void }) {
   return (
-    <div
-      className="rounded-2xl p-2"
-      style={{
-        background: 'rgba(255,255,255,0.08)',
-        backdropFilter: 'blur(20px) saturate(1.6)',
-        border: '1px solid rgba(255,255,255,0.12)',
-        boxShadow: '0 8px 32px rgba(0,0,0,0.25)',
-      }}
-    >
-      <div className="flex flex-col md:flex-row md:items-center gap-1">
-        <SearchField
-          icon={<MapPin className="w-5 h-5" style={{ color: WARM }} />}
-          label="Where to?"
-          hint="Search city or area"
-        />
-        <span className="hidden md:block w-px h-8 bg-white/10" />
-        <SearchField
-          icon={<Calendar className="w-5 h-5" style={{ color: WARM }} />}
-          label="Check-in"
-          hint="Add dates"
-        />
-        <span className="hidden md:block w-px h-8 bg-white/10" />
-        <SearchField
-          icon={<Calendar className="w-5 h-5" style={{ color: WARM }} />}
-          label="Check-out"
-          hint="Add dates"
-        />
-        <span className="hidden md:block w-px h-8 bg-white/10" />
-        <SearchField
-          icon={<Users className="w-5 h-5" style={{ color: WARM }} />}
-          label="Guests"
-          hint="Add guests"
-        />
-        <button
-          onClick={onSearch}
-          className="flex items-center justify-center gap-2 rounded-xl px-6 py-3.5 font-bold text-sm transition-all hover:scale-[1.02] mt-1 md:mt-0 md:ml-1"
-          style={{
-            background: WARM,
-            color: BASE,
-            boxShadow: `0 4px 20px ${WARM}40`,
-            minHeight: 52,
-          }}
+    <>
+      {/* Mobile: compact single-row pill */}
+      <button
+        onClick={onSearch}
+        className="md:hidden flex items-center gap-3 w-full rounded-full px-4 py-3.5"
+        style={{
+          background: 'rgba(255,255,255,0.1)',
+          backdropFilter: 'blur(20px) saturate(1.6)',
+          border: '1px solid rgba(255,255,255,0.12)',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.25)',
+        }}
+      >
+        <div
+          className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
+          style={{ background: WARM }}
         >
-          <Search className="w-4 h-4" />
-          Search Stays
-        </button>
+          <Search className="w-4 h-4" style={{ color: BASE }} />
+        </div>
+        <div className="text-left min-w-0">
+          <div className="text-sm font-bold text-white">Where to?</div>
+          <div className="text-xs text-white/40 truncate">Anywhere &middot; Any week &middot; Add guests</div>
+        </div>
+      </button>
+
+      {/* Desktop: expanded search fields */}
+      <div
+        className="hidden md:block rounded-2xl p-2"
+        style={{
+          background: 'rgba(255,255,255,0.08)',
+          backdropFilter: 'blur(20px) saturate(1.6)',
+          border: '1px solid rgba(255,255,255,0.12)',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.25)',
+        }}
+      >
+        <div className="flex items-center gap-1">
+          <SearchField
+            icon={<MapPin className="w-5 h-5" style={{ color: WARM }} />}
+            label="Where to?"
+            hint="Search city or area"
+          />
+          <span className="w-px h-8 bg-white/10" />
+          <SearchField
+            icon={<Calendar className="w-5 h-5" style={{ color: WARM }} />}
+            label="Check-in"
+            hint="Add dates"
+          />
+          <span className="w-px h-8 bg-white/10" />
+          <SearchField
+            icon={<Calendar className="w-5 h-5" style={{ color: WARM }} />}
+            label="Check-out"
+            hint="Add dates"
+          />
+          <span className="w-px h-8 bg-white/10" />
+          <SearchField
+            icon={<Users className="w-5 h-5" style={{ color: WARM }} />}
+            label="Guests"
+            hint="Add guests"
+          />
+          <button
+            onClick={onSearch}
+            className="flex items-center justify-center gap-2 rounded-xl px-6 py-3.5 font-bold text-sm transition-all hover:scale-[1.02] ml-1"
+            style={{
+              background: WARM,
+              color: BASE,
+              boxShadow: `0 4px 20px ${WARM}40`,
+              minHeight: 52,
+            }}
+          >
+            <Search className="w-4 h-4" />
+            Search Stays
+          </button>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
