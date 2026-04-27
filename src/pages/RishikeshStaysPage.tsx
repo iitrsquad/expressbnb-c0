@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import Layout from '../components/Layout';
-import SearchBar from '../components/SearchBar';
+import Header from '../components/Header';
 import { supabase } from '../lib/supabase';
 
 /**
@@ -82,14 +81,11 @@ const RishikeshPage: React.FC = () => {
   }, []);
 
   return (
-    <Layout>
+    <div className="min-h-screen bg-background text-foreground">
+      <Header />
       {/* Hero banner with subtle gradient */}
       <section className="relative bg-gradient-to-r from-orange-600 to-green-700 h-60 flex items-center justify-center text-white">
         <h1 className="text-3xl sm:text-4xl font-bold">Rishikesh Stays</h1>
-      </section>
-      {/* Search bar */}
-      <section className="max-w-7xl mx-auto p-4">
-        <SearchBar />
       </section>
       {/* Property grid */}
       <section className="max-w-7xl mx-auto p-4">
@@ -135,7 +131,7 @@ const RishikeshPage: React.FC = () => {
           </div>
         )}
       </section>
-    </Layout>
+    </div>
   );
 };
 
