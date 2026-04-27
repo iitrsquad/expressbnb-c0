@@ -2,19 +2,6 @@ import React, { useEffect, useState } from 'react';
 import Header from '../components/Header';
 import { supabase } from '../lib/supabase';
 
-/**
- * Simplified and improved Rishikesh listing page.
- *
- * This page replaces the previous version that relied on static arrays
- * and unsplash placeholder images. It fetches real property data from
- * your Supabase database and attempts to load the first uploaded
- * photo for each property from the Supabase storage bucket. If no
- * photo is found, it still renders the card but without an image. The
- * design uses a dark theme consistent with the new XpressBnB brand
- * aesthetic and scales gracefully across mobile and desktop. Adjust
- * queries and bucket names to match your schema.
- */
-
 interface Property {
   id: string;
   name: string;
@@ -31,7 +18,6 @@ const RishikeshPage: React.FC = () => {
   useEffect(() => {
     const fetchProps = async () => {
       setLoading(true);
-      // Fetch properties tagged for Rishikesh from your Supabase table
       const { data, error } = await supabase
         .from('properties')
         .select('*')
@@ -44,9 +30,6 @@ const RishikeshPage: React.FC = () => {
       }
 
       if (data) {
-        // For each property, attempt to get the first image from the
-        // storage bucket named "properties". Adjust the bucket name
-        // based on your storage setup (e.g. "property-images").
         const enriched = await Promise.all(
           data.map(async (p: any) => {
             let imageUrl: string | undefined;
@@ -65,9 +48,9 @@ const RishikeshPage: React.FC = () => {
             }
             return {
               id: p.id,
-              name: p.name,
-              price: p.price,
-              rating: p.rating,
+              name: p.name ?? 'Unnamed Property',
+              price: p.price ?? 0,
+              rating: p.rating ?? 0,
               location: p.city || 'Rishikesh',
               imageUrl,
             } as Property;
@@ -83,14 +66,12 @@ const RishikeshPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Header />
-      {/* Hero banner with subtle gradient */}
       <section className="relative bg-gradient-to-r from-orange-600 to-green-700 h-60 flex items-center justify-center text-white">
         <h1 className="text-3xl sm:text-4xl font-bold">Rishikesh Stays</h1>
       </section>
-      {/* Property grid */}
       <section className="max-w-7xl mx-auto p-4">
         {loading ? (
-          <p className="text-center text-gray-400">Loading stays…</p>
+          <p className="text-center text-gray-400">Loading stays...</p>
         ) : properties.length === 0 ? (
           <p className="text-center text-gray-400">No properties found.</p>
         ) : (
@@ -112,18 +93,14 @@ const RishikeshPage: React.FC = () => {
                   </div>
                 )}
                 <div className="p-4">
-                  <h3 className="text-lg font-semibold text-gray-100 truncate">
-                    {p.name}
-                  </h3>
-                    <p className="mt-1 text-sm text-gray-400">
-                      {p.location}
-                    </p>
+                  <h3 className="text-lg font-semibold text-gray-100 truncate">{p.name}</h3>
+                  <p className="mt-1 text-sm text-gray-400">{p.location}</p>
                   <div className="mt-2 flex items-center justify-between">
                     <span className="font-bold text-orange-400">
-                      ₹{p.price.toLocaleString('en-IN')}
+                      &#8377;{p.price.toLocaleString('en-IN')}
                       <span className="text-xs font-normal text-gray-400"> /night</span>
                     </span>
-                    <span className="text-yellow-400 text-sm">⭐ {p.rating.toFixed(1)}</span>
+                    <span className="text-yellow-400 text-sm">&#9733; {p.rating.toFixed(1)}</span>
                   </div>
                 </div>
               </div>
